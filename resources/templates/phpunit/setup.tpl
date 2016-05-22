@@ -1,0 +1,4 @@
+public function setup()
+{
+    <code>
+}
