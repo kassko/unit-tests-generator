@@ -10,7 +10,7 @@ This component allows to access to non public member and to execute non public m
 You can install this component with composer.
 
 ```php
-composer require kassko/php-component-member-accessor:master
+composer require 'kassko-php/unit-tests-generator:master'
 ```
 
 ## Usage
