@@ -1,15 +1,26 @@
 {
-    "name": "kassko-php/unit-tests-generator",
-    "description": "Generate unit tests",
-    "keywords": [
-        "unit", "test", "phpunit", "stub", "mock", "spy"
-    ],
+    "name": "kassko/test-unit-tests-gen",
+    "description": "A unit tests generator",
+    "license": "MIT",
+    "keywords": ["test", "phpunit", "stub", "spy", "mock"],
     "require": {
-        "php": ">=5.5.0"
+        "php": ">=5.5",
+        "kassko/util-member-accessor": "dev-master",
+        "symfony/filesystem": "^3.1",
+        "symfony/finder": "^3.1"
+    },
+    "require-dev": {
+      "phpunit/phpunit": "4.6.*",
+      "phpunit/phpunit-mock-objects": "2.3.0"
     },
     "autoload": {
         "psr-4": {
-            "Kassko\\UnitTest\\Generator\\": "src"
+            "Kassko\\Test\\UnitTestsGenerator\\": "lib"
         }
-    }
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

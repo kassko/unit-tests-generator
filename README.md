@@ -3,14 +3,14 @@ Unit tests Generator - NOT READY - NOT STABLE AT ALL - WORK IN PROGRESS
 
 NOT READY - NOT STABLE AT ALL - WORK IN PROGRESS
 
-This component allows to access to non public member and to execute non public methods.
+This library generates for you corresponding unit tests of your code.
 
 ## Installation
 
-You can install this component with composer.
+You can install this library with composer.
 
 ```php
-composer require 'kassko-php/unit-tests-generator:master'
+composer require kassko/unit-tests-generator:master
 ```
 
 ## Usage
@@ -126,6 +126,7 @@ testsuite:
                             class: Dao
                             attributes:
                                 connection: connection_stub
+                                # For auto generated value, expr language that wrapp faker
                     execution:
                         instance: dao_instance
                         method: getResult
@@ -214,9 +215,6 @@ testsuite:
                         #     param_c: false
 
                 collaborators:
-                    dao_stub:
-                        type: hybrid_stub 
-                        instance: dao_instance
                     connection_stub:
                         type: stub
                         class: Connection
@@ -236,7 +234,7 @@ testsuite:
                             - 'instanceOfClass("SomeClass")' # Expression language
                     spy_two:
                         type: expected_call
-                        collaborator: dao_mock
+                        instance: dao_instance
                         method: hydrateData
                         count: 1
                         matchers:

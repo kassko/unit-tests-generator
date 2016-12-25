@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit
+    backupGlobals               = "false"
+    colors                      = "true"
+    bootstrap                   = "tests/bootstrap.php" >
+
+    <testsuites>
+        <testsuite name="Kassko Unit Tests Generator Test Suite">
+            <directory>./tests</directory>
+            <exclude>./tests/FixturesTests</exclude>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory>./lib</directory>
+        </whitelist>
+    </filter>
+
+    <logging>
+        <log type="junit" target="build/logs/phpunit-junit.xml" logIncompleteSkipped="false"/>
+    </logging>
+
+</phpunit>

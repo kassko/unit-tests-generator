@@ -1,0 +1,6 @@
+/bin/
+/vendor/
+composer.lock
+composer
+/build/
+/tests/FixturesTests/
