@@ -198,7 +198,7 @@ class AddressTest extends \PHPUnit_Framework_TestCase
 }
 ```
 
-### Generate more complex tests dependending on your expectations
+### Generate more complex tests depending on your expectations
 
 ```php
 <?php
