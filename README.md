@@ -204,6 +204,7 @@ class AddressTest extends \PHPUnit_Framework_TestCase
 <?php
 
 use Kassko\Test\UnitTestsGenerator\Annotation as Ut;
+use MyException;
 
 class Manager
 {
@@ -223,13 +224,15 @@ class Manager
      *  @Ut\Expectation(expect=@Value(false), path=@Path({"rich", "man"})),
      *  @Ut\Expectation(expect=@Value(false), path=@Path({"poor", "woman"})),
      *  @Ut\Expectation(expect=@Value(false), path=@Path({"poor", "man"})),
-     *  @Ut\Expectation(expect=@Exception(class='MyException', code=1), path=@Path({"unknown_gender"})),
+     *  @Ut\Expectation(expect=@Exception(class='MyException', code=1), path=@Path({"unknown_gender"}))
      * })
      *
      * @Ut\CasesStore({
-     *  @Ut\Case(id="poor", expr=@Method(prop="richService", func="isRich"), return=@Value(false)),
-     *  @Ut\Case(id="woman", expr=@Method(var="genderService", func="getGender"), return=@Value("F")),
-     *  @Ut\Case(id="unknown_gender", expr=@Method(var="genderService", func="getGender"), return=@DIFFVALUE({"F", "M"}))
+     *  @Ut\Case(id="rich", expr=@Ut\Method(prop="richService", func="isRich"), return=@Value(true)),
+     *  @Ut\Case(id="poor", expr=@Ut\NotCase(id="rich")),
+     *  @Ut\Case(id="woman", expr=@Ut\Method(var="genderService", func="getGender"), return=@Value("F")),
+     *  @Ut\Case(id="man", expr=@Ut\Method(var="genderService", func="getGender"), return=@Value("M")),
+     *  @Ut\Case(id="unknown_gender", expr=@Ut\Method(var="genderService", func="getGender"), return=@Ut\Value("R"))
      * })
      */
     public function isRichWoman($genderService)
