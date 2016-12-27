@@ -4,7 +4,7 @@ namespace Kassko\Test\UnitTestsGenerator;
 
 use Kassko\Test\UnitTestsGenerator\AbstractPhpGenerator;
 use Kassko\Test\UnitTestsGenerator\Faker;
-use Kassko\Test\UnitTestsGenerator\Model\ClassType;
+use Kassko\Test\UnitTestsGenerator\CodeModel\Class_;
 use Kassko\Test\UnitTestsGenerator\OutputNamespaceResolver;
 use Kassko\Test\UnitTestsGenerator\Util\ClassNameParser;
 use Kassko\Test\UnitTestsGenerator\Util\Reflector;
@@ -65,9 +65,9 @@ abstract class AbstractTestGenerator
     }
 
     /**
-     * @param ClassType $classModel
+     * @param Class_ $classModel
      *
      * @return string
      */
-    abstract public function generateCodeForTest(ClassType $classModel);
+    abstract public function generateCodeFromCodeModel(Class_ $classModel);
 }

@@ -4,14 +4,7 @@ namespace Kassko\Test\UnitTestsGenerator\TestGenerator;
 
 use InvalidArgumentException;
 use Kassko\Test\UnitTestsGenerator\AbstractTestGenerator;
-use Kassko\Test\UnitTestsGenerator\Model\AbstractSimpleValue;
-use Kassko\Test\UnitTestsGenerator\Model\ClassType;
-use Kassko\Test\UnitTestsGenerator\Model\Expression;
-use Kassko\Test\UnitTestsGenerator\Model\Method;
-use Kassko\Test\UnitTestsGenerator\Model\Parameter;
-use Kassko\Test\UnitTestsGenerator\Model\Statement\Assert;
-use Kassko\Test\UnitTestsGenerator\Model\Statement\Assignment;
-use Kassko\Test\UnitTestsGenerator\Model\Value;
+use Kassko\Test\UnitTestsGenerator\CodeModel;
 use Kassko\Test\UnitTestsGenerator\TestGenerator;
 
 /**
@@ -20,11 +13,11 @@ use Kassko\Test\UnitTestsGenerator\TestGenerator;
 abstract class AbstractPhpunit extends AbstractTestGenerator
 {
     /**
-     * @param ClassType $classModel
+     * @param CodeModel\Class_ $classModel
      *
      * @return string
      */
-    public function generateCodeForTest(ClassType $classModel)
+    public function generateCodeFromCodeModel(CodeModel\Class_ $classModel)
     {
         $fullClass = $classModel->getFullClass();
 
@@ -58,11 +51,11 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
     }
 
     /**
-     * @param ClassType $classModel
+     * @param CodeModel\Class_ $classModel
      *
      * @return string
      */
-    protected function generateTransversalsAssignmentsCode(ClassType $classModel)
+    protected function generateTransversalsAssignmentsCode(CodeModel\Class_ $classModel)
     {
         $assignmentsCode = [];
 
@@ -88,15 +81,14 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
     }
 
     /**
-     * @param Method $method
+     * @param CodeModel\Method $method
      * @param string $tranversalsAssignCode
      *
      * @return string
      */
-    protected function generateSetupTest(Method $method, $tranversalsAssignCode)
+    protected function generateSetupTest(CodeModel\Method $method, $tranversalsAssignCode)
     {
         $bodyCode = $this->generateMethodBodyCode($method);
-        var_dump($tranversalsAssignCode);
 
         $code = str_replace(
             ['{method}', '{ta_code}', '{code}'], 
@@ -108,14 +100,14 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
     }
 
     /**
-     * @param Method $method
+     * @param CodeModel\Method $method
      *
      * @return string
      */
-    protected function generateMethodTest(Method $method)
+    protected function generateMethodTest(CodeModel\Method $method)
     {
         if ('setup' === $method->getName()) {
-            $this->generateTransversalsAssignmentsCode($method->getClassType());
+            $this->generateTransversalsAssignmentsCode($method->getClass());
         }
 
         $bodyCode = $this->generateMethodBodyCode($method);
@@ -125,7 +117,12 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
         return $code;
     }
 
-    protected function generateMethodBodyCode(Method $method)
+    /**
+     * @param CodeModel\Method $method
+     *
+     * @return string
+     */
+    protected function generateMethodBodyCode(CodeModel\Method $method)
     {
         $assignmentsCode = $this->generateInitStatementsCode($method->getOrderedInitStatements());
         $spiesCode = $this->generateSpiesCode($method->getSpies());
@@ -158,7 +155,7 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
     }
 
     /**
-     * @param Statement[] $statements
+     * @param CodeModel\Statement[] $statements
      *
      * @return string
      */
@@ -200,7 +197,7 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
     }
 
     /**
-     * @param Spy[] $spies
+     * @param CodeModel\Statement\Spy[] $spies
      *
      * @return string
      */
@@ -210,7 +207,7 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
     }
 
     /**
-     * @param CustomStmt[]
+     * @param CodeModel\Statement\CustomStmt[] $customStmts
      *
      * @return string
      */
@@ -221,7 +218,7 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
         foreach ($customStmts as $customStmt) {
             $expression = $customStmt->getExpression();
             switch (true) {
-                case $expression instanceof Expression\ReflPropertySet:
+                case $expression instanceof CodeModel\Expression\ReflPropertySet:
                     $expressionCode = str_replace(
                         ['{obj}', '{prop}', '{val}'],
                         [
@@ -235,7 +232,7 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
                     $customStmtsCode[] = str_replace('{expr}', $expressionCode, PhpunitTemplate::exec());
                     break;
 
-                case $expression instanceof Expression\FuncCall:
+                case $expression instanceof CodeModel\Expression\FuncCall:
                     $expressionCode = str_replace(
                         ['{obj}', '{func}', '{params}'],
                         [
@@ -255,7 +252,7 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
     }
 
     /**
-     * @param Assert[]
+     * @param CodeModel\Statement\Assert_[] $asserts
      *
      * @return string
      */
@@ -264,13 +261,13 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
         $assertsCode = [];
         foreach ($asserts as $assert) {
             switch (true) {
-                case $assert instanceof Assert\UnaryAssert:
+                case $assert instanceof CodeModel\Statement\Assert\UnaryAssert:
                     $operandCode = $this->generateOperandCode($assert->getOperand());
 
                     $assertsCode[] = str_replace(['{expected}'], [$operandCode], PhpunitTemplate::assertTrue());
                     break;
 
-                case $assert instanceof Assert\BinaryAssert:
+                case $assert instanceof CodeModel\Statement\Assert\BinaryAssert:
                     $leftOperandCode = $this->generateOperandCode($assert->getLeftOperand());
                     $rightOperandCode = $this->generateOperandCode($assert->getRightOperand());
 
@@ -287,24 +284,24 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
     }
 
     /**
-     * @param Value $operand
+     * @param CodeModel\Value $operand
      *
      * @return string
      */
-    protected function generateOperandCode(Value $operand)
+    protected function generateOperandCode(CodeModel\Value $operand)
     {
         $code = null;
 
         switch (true) {
-            case $operand instanceof AbstractSimpleValue:
+            case $operand instanceof CodeModel\AbstractSimpleValue:
                 $code = $operand->getAsScalar();
                 break;
 
-            case $operand instanceof Value\ExpressionValue:
+            case $operand instanceof CodeModel\Value\ExpressionValue:
                 $expression = $operand->getValue();
 
                 switch (true) {
-                    case $expression instanceof Expression\FuncCall:
+                    case $expression instanceof CodeModel\Expression\FuncCall:
                         $code = str_replace(
                             ['{obj}', '{func}', '{params}'],
                             [
@@ -315,7 +312,7 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
                             PhpunitTemplate::exprFuncCall()
                         );
                         break;
-                    case $expression instanceof Expression\ReflPropertyGet:
+                    case $expression instanceof CodeModel\Expression\ReflPropertyGet:
                         $code = str_replace(
                             ['{obj}', '{prop}'],
                             [
@@ -333,7 +330,9 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
     }
 
     /**
-     * @param array $parameters (default)
+     * @param CodeModel\Parameter[] $parameters (default)
+     *
+     * @return string
      */
     protected function generateParametersCode(array $parameters = [])
     {
@@ -344,7 +343,7 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
         return implode(
             ', ',
              array_map(
-                function ($parameter) {
+                function (CodeModel\Parameter $parameter) {
                     return $parameter->getValue()->getAsScalar();
                 },
                 $parameters

@@ -1,7 +1,7 @@
-Unit tests Generator - NOT READY - NOT STABLE AT ALL - WORK IN PROGRESS
+Unit tests Generator
 ==================
 
-NOT READY - NOT STABLE AT ALL - WORK IN PROGRESS
+NOT FULLY READY - WORK IN PROGRESS
 
 This library generates for you corresponding unit tests of your code.
 
@@ -15,233 +15,231 @@ composer require kassko/unit-tests-generator:master
 
 ## Usage
 
-### Example 1: usage on tests that test the result are good
+### Generate basics tests
 
-Given the class:
+Given the following classes
+
 ```php
-class SomeClass
-{
-    public function formatData($data)
-    {
-        if (!empty($data)) {
-            foreach ($data as &$item) {
-                $item *= 2;
-            }
+namespace Kassko\Test\UnitTestsGeneratorTest\Fixtures;
 
-            return $data;
-        }
-
-        return [];
-    }
-}
-```
-
-And the yaml test description:
-```yaml
-testsuite:
-    testsuiteA: 
-        class: 'Kassko\SampleTest' # The namespace for the test class to generate
-        tests:
-            formatData:
-                sut:
-                    instances:
-                        dao_instance:
-                            class: Dao
-                    execution:
-                        instance: dao_instance
-                        method: formatData
-                        param_serie:
-                            serie_a:
-                                - [123]
-                                - 'foo'
-                            serie_b:
-                                - []
-                                - 'foo'
-                            serie_c:
-                                - null
-                                - 'foo'
-                        result_serie:
-                            serie_a:
-                                - [246]
-                                - 'paramIndex(2)'
-                            serie_b:
-                                - []
-                                - 'paramIndex(2)'
-                            serie_c:
-                                - []
-                                - 'paramIndex(2)'
-
-                        # Or if only one serie
-                        # param:
-                        #    - [123]
-                        #    - 'foo'
-                        # result_serie:
-                        #    - [246]
-                        #    - 'paramIndex(2)'
-```
-
-And the resulting phpunit code
-```php
-//To complete
-```
-
-### Example 2: usage on tests that test behaviour
-
-Given the class:
-```php
-class SomeClass
+class Person
 {
     /**
-     * @var SomeDependencyClass
+     * @var string
      */
-    private $dependency;
+    private $name;
+    /**
+     * @var integer
+     */
+    private $age;
 
-    public function getData($paramA, $paramB, $paramC)
+    /**
+     * @param string $name
+     * @param integer $age
+     * @param Address $address
+     */
+    public function __construct($name, $age, $address)
     {
-        return $this->connection
-            ->execute(
-                'foo',
-                [
-                    'paramA' => $paramA,
-                    'paramB' => $paramB,
-                    'paramC' => $paramC,
-                ],
-                new SomeClass
-            )
-        ;
+        $this->name = $name;
+        $this->age = $age;
+        $this->address = $address;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     * @return self
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * @return integer
+     */
+    public function getAge()
+    {
+        return $this->age;
+    }
+
+    /**
+     * @param integer $age
+     */
+    public function setAge($age)
+    {
+        $this->age = $age;
+        return $this;
     }
 }
 ```
 
-And the yaml test description:
-```yaml
-testsuite:
-    testsuiteA: 
-        class: 'Kassko\SampleTest' # The namespace for the test class to generate
-        tests:
-            getResult:
-                sut:
-                    instances:
-                        dao_instance:
-                            class: Dao
-                            attributes:
-                                connection: connection_stub
-                                # For auto generated value, expr language that wrapp faker
-                    execution:
-                        instance: dao_instance
-                        method: getResult
-                        param:
-                            - 'foo'
-                            - 'bar'
-                            - false
-
-                        # you can specify indexes
-                        # param:
-                        #     param_a: 'foo'
-                        #     param_b: 'bar'
-                        #     param_c: false
-
-                collaborators:
-                    connection_stub:
-                        type: stub
-                        class: Connection
-
-                spies:
-                    spy_one:
-                        type: expected_call
-                        collaborator: connection_stub
-                        method: getData
-                        count: 1
-                        matchers:
-                            - foo
-                            - ['paramIndex(1)', 'paramIndex(2)', 'paramIndex(3)'] # Or [paramName("param_a"), paramName("param_b"), paramName("param_c")]
-                            - 'instanceOfClass("SomeClass")' # Expression language
-
-                        # type: expected_exception # This type exists too.
-```
-
-And the resulting phpunit code
 ```php
-//To complete
-```
+<?php
 
-### Example 3: usage more complex with test that test result and behaviour on an object
+namespace Kassko\Test\UnitTestsGeneratorTest\Fixtures;
 
-Given the class:
-```php
-public function getResult($paramA, $paramB, $paramC)
+class Address
 {
-    $data = $this->connection
-        ->execute(
-            'foo',
-            [
-                'paramA' => $paramA,
-                'paramB' => $paramB,
-                'paramC' => $paramC,
-            ],
-            new SomeClass
-        )
-    ;
-
-    return $this->hydrateData($data);
 }
 ```
 
-And the yaml test description:
-```yaml
-testsuite:
-    testsuiteA: 
-        class: 'Kassko\SampleTest' # The namespace for the test class to generate
-        tests:
-            getResult:
-                sut:
-                    instances:
-                        dao_instance:
-                            class: Dao
-                            attributes:
-                                connection: connection_stub
-                    execution:
-                        instance: dao_instance
-                        method: getResult
-                        param:
-                            - 'foo'
-                            - 'bar'
-                            - false
+The library generate the following basics tests
 
-                        # you can specify indexes
-                        # param:
-                        #     param_a: 'foo'
-                        #     param_b: 'bar'
-                        #     param_c: false
-
-                collaborators:
-                    connection_stub:
-                        type: stub
-                        class: Connection
-                        # You can specify a return value for method "execute" like below or do nothing and in the spy section use the expression language result. Hence a spy with a random return value will be created. See the spy section.
-                        # method: execute
-                            # return: 'foo'
-
-                spies:
-                    spy_one:
-                        type: expected_call
-                        collaborator: connection_stub
-                        method: getData
-                        count: 1
-                        matchers:
-                            - foo
-                            - ['paramIndex(1)', 'paramIndex(2)', 'paramIndex(3)'] # Or [paramName("param_a"), paramName("param_b"), paramName("param_c")]
-                            - 'instanceOfClass("SomeClass")' # Expression language
-                    spy_two:
-                        type: expected_call
-                        instance: dao_instance
-                        method: hydrateData
-                        count: 1
-                        matchers:
-                            - 'result("connection", "callProcedure")' # Or 'foo'
-```
-
-And the resulting phpunit code
 ```php
-//To complete
+<?php
+
+namespace Kassko\Test\UnitTestsGeneratorTestTest\Fixtures;
+
+use Kassko\Test\UnitTestsGeneratorTest\Fixtures\Address;
+use Kassko\Test\UnitTestsGeneratorTest\Fixtures\Person;
+use Kassko\Util\MemberAccessor\ObjectMemberAccessor;
+
+class PersonTest extends \PHPUnit_Framework_TestCase
+{
+    public function setup()
+    {
+        $this->objectMemberAccessor = new ObjectMemberAccessor;
+        $address = $this->getMockBuilder(Address::class)->disableOriginalConstructor()->getMock();
+        $this->person = new Person('foo', 1, $address);
+    }
+
+    /**
+     * @test
+     */
+    public function constructor()
+    {
+        $address = $this->getMockBuilder(Address::class)->disableOriginalConstructor()->getMock();
+        $this->person = new Person('foo', 1, $address);
+        $this->assertEquals('foo', $this->objectMemberAccessor->getPropertyValue($this->person, 'name'));
+        $this->assertEquals(1, $this->objectMemberAccessor->getPropertyValue($this->person, 'age'));
+        $this->assertEquals($address, $this->objectMemberAccessor->getPropertyValue($this->person, 'address'));
+    }
+
+    /**
+     * @test
+     */
+    public function getName()
+    {
+        $this->objectMemberAccessor->setPropertyValue($this->person, 'name', 'foo');
+        $this->assertEquals('foo', $this->person->getName());
+    }
+
+    /**
+     * @test
+     */
+    public function getAge()
+    {
+        $this->objectMemberAccessor->setPropertyValue($this->person, 'age', 1);
+        $this->assertEquals(1, $this->person->getAge());
+    }
+
+    /**
+     * @test
+     */
+    public function setName()
+    {
+        $this->assertEquals($this->person, $this->person->setName('foo'));
+        $this->assertEquals('foo', $this->objectMemberAccessor->getPropertyValue($this->person, 'name'));
+    }
+
+    /**
+     * @test
+     */
+    public function setAge()
+    {
+        $this->person->setAge(1);
+        $this->assertEquals(1, $this->objectMemberAccessor->getPropertyValue($this->person, 'age'));
+    }
+}
 ```
+
+```php
+<?php
+
+namespace Kassko\Test\UnitTestsGeneratorTestTest\Fixtures;
+
+use Kassko\Test\UnitTestsGeneratorTest\Fixtures\Address;
+use Kassko\Util\MemberAccessor\ObjectMemberAccessor;
+
+class AddressTest extends \PHPUnit_Framework_TestCase
+{
+    public function setup()
+    {
+        $this->objectMemberAccessor = new ObjectMemberAccessor;
+        $this->address = new Address;
+    }
+
+    /**
+     * @test
+     */
+    public function getStreet()
+    {
+        $this->objectMemberAccessor->setPropertyValue($this->address, 'street', 'foo');
+        $this->assertEquals('foo', $this->address->getStreet());
+    }
+
+    /**
+     * @test
+     */
+    public function setStreet()
+    {
+        $this->assertEquals($this->address, $this->address->setStreet('foo'));
+        $this->assertEquals('foo', $this->objectMemberAccessor->getPropertyValue($this->address, 'street'));
+    }
+}
+```
+
+### Generate more complex tests dependending on your expectations
+
+```php
+<?php
+
+use Kassko\Test\UnitTestsGenerator\Annotation as Ut;
+
+class Manager
+{
+    /**
+     * @var Service
+     */
+    private $richService;
+
+    public function __construct($richService)
+    {
+        $this->richService = $richService;
+    }
+
+    /**
+     * @Ut\Expectations({
+     *  @Ut\Expectation(expect=@Value(true), path=@Path({"rich", "woman"})),
+     *  @Ut\Expectation(expect=@Value(false), path=@Path({"rich", "man"})),
+     *  @Ut\Expectation(expect=@Value(false), path=@Path({"poor", "woman"})),
+     *  @Ut\Expectation(expect=@Value(false), path=@Path({"poor", "man"})),
+     *  @Ut\Expectation(expect=@Exception(class='MyException', code=1), path=@Path({"unknown_gender"})),
+     * })
+     *
+     * @Ut\CasesStore({
+     *  @Ut\Case(id="poor", expr=@Method(prop="richService", func="isRich"), return=@Value(false)),
+     *  @Ut\Case(id="woman", expr=@Method(var="genderService", func="getGender"), return=@Value("F")),
+     *  @Ut\Case(id="unknown_gender", expr=@Method(var="genderService", func="getGender"), return=@DIFFVALUE({"F", "M"}))
+     * })
+     */
+    public function isRichWoman($genderService)
+    {
+        if ('F' === $genderService->getGender() && 'M' === $genderService->getGender()) {
+            throw new MyException('Unkown gender', 1);
+        }
+
+        return true === $this->richService->isRich() && 'F' === $genderService->getGender();
+    }
+}
+```
+Will generate tests corresponding to your expectations and so handle itself the stubs dependencies creation which is a hard work in tests creation.

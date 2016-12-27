@@ -2,14 +2,17 @@
 
 namespace Kassko\Test\UnitTestsGeneratorTest;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Kassko\Test\UnitTestsGenerator\CodeDumper;
+use Kassko\Test\UnitTestsGenerator\CodeModelCreator;
 use Kassko\Test\UnitTestsGenerator\Faker;
 use Kassko\Test\UnitTestsGenerator\FilesFinder;
 use Kassko\Test\UnitTestsGenerator\GenerateTestsCommand;
 use Kassko\Test\UnitTestsGenerator\OutputDirectoryResolver;
 use Kassko\Test\UnitTestsGenerator\OutputNamespaceResolver;
 use Kassko\Test\UnitTestsGenerator\PhpGenerator;
-use Kassko\Test\UnitTestsGenerator\TestCreator;
-use Kassko\Test\UnitTestsGenerator\TestDumper;
+use Kassko\Test\UnitTestsGenerator\PlanLoader\AnnotationLoader;
+use Kassko\Test\UnitTestsGenerator\PlanLoader\ArrayPlanLoader;
 use Kassko\Test\UnitTestsGenerator\TestGenerator;
 use Kassko\Test\UnitTestsGenerator\Util\ClassNameParser;
 use Kassko\Test\UnitTestsGenerator\Util\PhpElementsExtractor;
@@ -28,7 +31,7 @@ class GenerateTestsCommandTest extends \PHPUnit_Framework_TestCase
             [],
             new FilesFinder(['input_files_locations' => [__DIR__ . '/Fixtures/']]),
             new PhpElementsExtractor,
-            new TestCreator(
+            new CodeModelCreator(
                 [
                     'tests_dep_fqcn' => ['Kassko\\Util\\MemberAccessor\\ObjectMemberAccessor']
                 ],
@@ -52,7 +55,7 @@ class GenerateTestsCommandTest extends \PHPUnit_Framework_TestCase
                 ]),
                 $classNameParser
             ),
-            new TestDumper(new Filesystem),
+            new CodeDumper(new Filesystem),
             new OutputDirectoryResolver([
                 'files' => [
                     'map' => [
@@ -61,7 +64,8 @@ class GenerateTestsCommandTest extends \PHPUnit_Framework_TestCase
                     ],
                     //'unique' => __DIR__ . '\\FixturesTests\\',
                 ],
-            ])
+            ]),
+            new AnnotationLoader(new AnnotationReader, new ArrayPlanLoader)
         );
     }
 

@@ -2,7 +2,7 @@
 
 namespace Kassko\Test\UnitTestsGenerator;
 
-use Kassko\Test\UnitTestsGenerator\Exception\OutputDirectoryResolvingException;
+use Kassko\Test\UnitTestsGenerator\OutputDirectoryResolvingException;
 
 /**
  * OutputDirectoryResolver
