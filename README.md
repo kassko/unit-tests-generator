@@ -34,9 +34,9 @@ class Person
     private $age;
 
     /**
-     * @param string $name
-     * @param integer $age
-     * @param Address $address
+     * @param string    $name
+     * @param integer   $age
+     * @param Address   $address
      */
     public function __construct($name, $age, $address)
     {
@@ -204,12 +204,11 @@ class AddressTest extends \PHPUnit_Framework_TestCase
 <?php
 
 use Kassko\Test\UnitTestsGenerator\Annotation as Ut;
-use MyException;
 
 class Manager
 {
     /**
-     * @var Service
+     * @var \RichService
      */
     private $richService;
 
@@ -224,24 +223,51 @@ class Manager
      *  @Ut\Expectation(expect=@Value(false), path=@Path({"rich", "man"})),
      *  @Ut\Expectation(expect=@Value(false), path=@Path({"poor", "woman"})),
      *  @Ut\Expectation(expect=@Value(false), path=@Path({"poor", "man"})),
+     *  @Ut\Expectation(expect=@Exception_(class='MyException', code=1), path=@Path({"unknown_gender"}))
+     * })
+     *
+     * @Ut\CasesStore({
+     *  @Ut\Case_(id="rich", expr=@Ut\Method(obj="richService", func="isRich"), return=@Value(true)),
+     *  @Ut\Case_(id="poor", expr=@Ut\NotCase(id="rich")),
+     *  @Ut\Case_(id="woman", expr=@Ut\Method(obj="genderService", func="getGender", member=false), return=@Value("F")),
+     *  @Ut\Case_(id="man", expr=@Ut\Method(var="genderService", func="getGender"), return=@Value("M")),
+     *  @Ut\Case_(id="unknown_gender", expr=@Ut\Method(var="genderService", func="getGender"), return=@Ut\Value("R"))
+     * })
+     */
+    public function isRichWoman(\GenderService $genderService)
+    {
+        if ('F' !== $genderService->getGender() && 'M' !== $genderService->getGender()) {
+            throw new \MyException('Unkown gender', 1);
+        }
+
+        return true === $this->richService->isRich() && 'F' === $genderService->getGender();
+    }
+
+    /**
+     * @Ut\Expectations({
+     *  @Ut\Expectation(expect=@Value(true), path=@Path({"rich", "woman"})),
+     *  @Ut\Expectation(expect=@Value(false), path=@Path({"rich", "man"})),
+     *  @Ut\Expectation(expect=@Value(false), path=@Path({"poor", "woman"})),
+     *  @Ut\Expectation(expect=@Value(false), path=@Path({"poor", "man"})),
      *  @Ut\Expectation(expect=@Exception(class='MyException', code=1), path=@Path({"unknown_gender"}))
      * })
      *
      * @Ut\CasesStore({
-     *  @Ut\Case(id="rich", expr=@Ut\Method(prop="richService", func="isRich"), return=@Value(true)),
-     *  @Ut\Case(id="poor", expr=@Ut\NotCase(id="rich")),
-     *  @Ut\Case(id="woman", expr=@Ut\Method(var="genderService", func="getGender"), return=@Value("F")),
-     *  @Ut\Case(id="man", expr=@Ut\Method(var="genderService", func="getGender"), return=@Value("M")),
-     *  @Ut\Case(id="unknown_gender", expr=@Ut\Method(var="genderService", func="getGender"), return=@Ut\Value("R"))
+     *  @Ut\Case_(id="rich", expr=@Ut\Method(prop="richService", func="isRich"), return=@Ut\Value(true)),
+     *  @Ut\Case_(id="poor", expr=@Ut\NotCase("rich")),
+     *  @Ut\Case_(id="woman", expr=@Ut\Method(var="genderService", func="getGender"), return=@Ut\InstanceOf_("Female")),
+     *  @Ut\Case_(id="man", expr=@Ut\Method(var="genderService", func="getGender"), return=@Ut\InstanceOf_("Male")),
+     *  @Ut\Case_(id="unknown_gender", expr=@Ut\Method(var="genderService", func="getGender"), return=@Ut\InstanceOf_("UnknownType"))
      * })
      */
-    public function isRichWoman($genderService)
+    public function isRichWomanBis($genderService)
     {
-        if ('F' === $genderService->getGender() && 'M' === $genderService->getGender()) {
-            throw new MyException('Unkown gender', 1);
+        $gender = $genderService->getGender();
+        if (!$gender instanceof \Female && !$gender instanceof \Male) {
+            throw new \MyException('Unkown gender', 1);
         }
 
-        return true === $this->richService->isRich() && 'F' === $genderService->getGender();
+        return true === $this->richService->isRich() && $gender instanceof \Female;
     }
 }
 ```

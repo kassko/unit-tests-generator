@@ -3,6 +3,7 @@
 namespace Kassko\Test\UnitTestsGeneratorTest;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\AnnotationRegistry;
 use Kassko\Test\UnitTestsGenerator\CodeDumper;
 use Kassko\Test\UnitTestsGenerator\CodeModelCreator;
 use Kassko\Test\UnitTestsGenerator\Faker;
@@ -23,6 +24,8 @@ class GenerateTestsCommandTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
+        AnnotationRegistry::registerLoader('class_exists');
+
         $classNameParser = new ClassNameParser;
         $reflector = new Reflector($classNameParser);
         $faker = new Faker;
@@ -65,7 +68,7 @@ class GenerateTestsCommandTest extends \PHPUnit_Framework_TestCase
                     //'unique' => __DIR__ . '\\FixturesTests\\',
                 ],
             ]),
-            new AnnotationLoader(new AnnotationReader, new ArrayPlanLoader)
+            new AnnotationLoader(new AnnotationReader, $reflector, new ArrayPlanLoader)
         );
     }
 

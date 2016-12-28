@@ -22,7 +22,7 @@ abstract class AbstractPhpunit extends AbstractTestGenerator
         $fullClass = $classModel->getFullClass();
 
         list($namespace, $class) = $this->classNameParser->tokenizeFullClass($fullClass);
-        $testNamespace = $this->outputNamespaceResolver->resolveTestNamespace($namespace);
+        $testNamespace = $this->outputNamespaceResolver->resolveTestNamespace($namespace, $class);
 
         $functionsCode = [];
 
