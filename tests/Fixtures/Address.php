@@ -4,12 +4,12 @@ namespace Kassko\Test\UnitTestsGeneratorTest\Fixtures;
 
 class Address
 {
-	/**
+    /**
      * @var string
      */
-	private $street;
+    private $street;
 
-	/**
+    /**
      * @return string
      */
     public function getStreet()
