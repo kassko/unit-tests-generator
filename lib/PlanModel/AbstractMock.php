@@ -5,7 +5,7 @@ namespace Kassko\Test\UnitTestsGenerator\PlanModel\Case;
 /**
  * AbstractCase
  */
-abstract class AbstractCase implements Case_
+abstract class AbstractMock implements Mock
 {
     /**
      * @var string

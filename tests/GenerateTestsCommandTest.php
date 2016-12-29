@@ -13,7 +13,7 @@ use Kassko\Test\UnitTestsGenerator\OutputDirectoryResolver;
 use Kassko\Test\UnitTestsGenerator\OutputNamespaceResolver;
 use Kassko\Test\UnitTestsGenerator\PhpGenerator;
 use Kassko\Test\UnitTestsGenerator\PlanLoader\AnnotationLoader;
-use Kassko\Test\UnitTestsGenerator\PlanLoader\ArrayPlanLoader;
+use Kassko\Test\UnitTestsGenerator\PlanLoader\ArrayLoader;
 use Kassko\Test\UnitTestsGenerator\TestGenerator;
 use Kassko\Test\UnitTestsGenerator\Util\ClassNameParser;
 use Kassko\Test\UnitTestsGenerator\Util\PhpElementsExtractor;
@@ -68,7 +68,7 @@ class GenerateTestsCommandTest extends \PHPUnit_Framework_TestCase
                     //'unique' => __DIR__ . '\\FixturesTests\\',
                 ],
             ]),
-            new AnnotationLoader(new AnnotationReader, $reflector, new ArrayPlanLoader)
+            new AnnotationLoader(new AnnotationReader, $reflector, new ArrayLoader)
         );
     }
 

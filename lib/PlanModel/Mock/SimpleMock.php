@@ -1,13 +1,13 @@
 <?php
 
-namespace Kassko\Test\UnitTestsGenerator\PlanModel\Case;
+namespace Kassko\Test\UnitTestsGenerator\PlanModel\Mock;
 
-use Kassko\Test\UnitTestsGenerator\PlanModel\AbstractCase;
+use Kassko\Test\UnitTestsGenerator\PlanModel\AbstractMock;
 
 /**
- * SimpleCase
+ * SimpleMock
  */
-class SimpleCase extends AbstractCase
+class SimpleMock extends AbstractMock
 {
     /**
      * @var Expression

@@ -8,12 +8,12 @@ namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation;
 *
 * @author kko
 */
-final class CasesStore
+final class MocksStore
 {
     /**
-     * One or more Case_ annotations.
+     * One or more Mock annotations.
      *
-     * @var array<\Kassko\Test\UnitTestsGenerator\PlanAnnotation\Case_>
+     * @var array<\Kassko\Test\UnitTestsGenerator\PlanAnnotation\Mock>
      */
     public $items = [];
 }

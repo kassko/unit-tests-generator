@@ -8,7 +8,7 @@ namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation\Expression;
  *
  * @author kko
  */
-final class NotCase implements \Kassko\Test\UnitTestsGenerator\PlanAnnotation\Expression
+final class OppositeMockOf implements \Kassko\Test\UnitTestsGenerator\PlanAnnotation\Expression
 {
     /**
      * @var string

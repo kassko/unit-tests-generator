@@ -1,6 +1,6 @@
 <?php
 
-namespace Kassko\DataMapper\Annotation;
+namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation;
 
 /**
 * @Annotation
@@ -8,15 +8,15 @@ namespace Kassko\DataMapper\Annotation;
 *
 * @author kko
 */
-final class Type implements Annotation
+final class Type
 {
     /**
      * @var string
      */
-    public $type;
+    public $val;
 
     public function __construct(array $data)
     {
-        $this->type = current($data);
+        $this->val = current($data);
     }
 }

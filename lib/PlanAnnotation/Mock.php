@@ -10,7 +10,7 @@ use Kassko\Test\UnitTestsGenerator\PlanAnnotation\Expression;
 *
 * @author kko
 */
-final class Case_
+final class Mock
 {
     /**
      * @var string
@@ -19,9 +19,17 @@ final class Case_
     /**
      * Expression
      */
-    public $expr = null;
+    public $expr;
     /**
      * @var mixed
      */
-    public $value = null;
+    public $behav;
+    /**
+     * @var mixed
+     */
+    public $return;
+    /**
+     * @var bool
+     */
+    public $enabled = true;
 }

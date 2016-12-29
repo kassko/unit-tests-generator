@@ -23,20 +23,20 @@ class AnnotationLoader implements PlanLoader
      */
     private $reflector;
     /**
-     * @var ArrayPlanLoader
+     * @var ArrayLoader
      */
-    private $arrayPlanLoader;
+    private $arrayLoader;
 
     /**
-     * @param Reader            $reader
-     * @param Reflector         $reflector
-     * @param ArrayPlanLoader   $arrayPlanLoader
+     * @param Reader        $reader
+     * @param Reflector     $reflector
+     * @param ArrayLoader   $arrayLoader
      */
-    public function __construct(Reader $reader, Reflector $reflector, ArrayPlanLoader $arrayPlanLoader)
+    public function __construct(Reader $reader, Reflector $reflector, ArrayLoader $arrayLoader)
     {
         $this->reader = $reader;
         $this->reflector = $reflector;
-        $this->arrayPlanLoader = $arrayPlanLoader;
+        $this->arrayLoader = $arrayLoader;
     }
 
     /**
@@ -62,9 +62,8 @@ class AnnotationLoader implements PlanLoader
             $annotations = $this->reader->getMethodAnnotations($reflMethod);
             foreach ($annotations as $annotation) {
                 switch (true) {
-                    case $annotation instanceof Ut\CasesStore:
-                        $data['methods'][$methodName] = [];
-                        $data['methods'][$methodName]['cases_store'] = $this->extractCasesStore($annotation);
+                    case $annotation instanceof Ut\MocksStore:
+                        $data['methods'][$methodName] = ['mocks_store' => $this->extractMocksStore($annotation)];
                         break;
                 }
             }
@@ -78,40 +77,101 @@ class AnnotationLoader implements PlanLoader
             foreach ($annotations as $annotation) {
                 switch (true) {
                     case $annotation instanceof Ut\Type:
-                        $data['props'][$propName] = [];
-                        $data['props'][$propName]['type'] = extractType($annotation->type);
+                        $data['props'][$propName] = ['type' => $this->extractType($annotation->type)];
                         break;
                 }
             }
         }
 
-        return $this->arrayPlanLoader->load($classPlanModel, new PlanProviderResource('array', $data));
+        return $this->arrayLoader->load($classPlanModel, new PlanProviderResource('array', $data));
     }
 
     /**
-     * @param Ut\CasesStore $casesStore
+     * @param Ut\Expectations $expectations
      *
      * @return array
      */
-    protected function extractCasesStore(Ut\CasesStore $casesStore)
+    protected function extractExpectations(Ut\Expectations $expectations)
     {
         $data = [];
 
-        foreach ($casesStore->items as $case) {
-            $data[$case->id] = $this->extractCase($case);
+        foreach ($expectations->items as $expectation) {
+            $data[] = $this->extractExpectation($expectation);
         }
 
         return $data;
     }
 
     /**
-     * @param Ut\Case_ $case
+     * @param Ut\Expectation $expectation
      *
      * @return array
      */
-    protected function extractCase(Ut\Case_ $case)
+    protected function extractExpectation(Ut\Expectation $expectation)
     {
-        return ['id' => $case->id, 'expr' => $this->extractExpression($case->expr), 'value' => $case->value];
+        return [
+            'expected' => $this->extractExpected($path->expected), 
+            'path' => $this->extractPath($expectation->path),
+            'enabled' => $expectation->enabled
+        ];
+    }
+
+    /**
+     * @param mixed $expected
+     *
+     * @return array
+     */
+    protected function extractExpected($expected)
+    {
+        switch (true) {
+            case is_scalar($expected):
+                return ['type' => 'scalar', 'config' => $expected];
+            case $expected instanceof Ut\Exception:
+                return ['type' => 'exception', 'config' => $this->extractException($expected)];
+        }
+
+        return [];
+    }
+
+    /**
+     * @param Ut\Path $path
+     *
+     * @return array
+     */
+    protected function extractPath(Ut\Path $path)
+    {
+        return ['mocks' => $path->mocks];
+    }
+
+    /**
+     * @param Ut\MocksStore $casesStore
+     *
+     * @return array
+     */
+    protected function extractMocksStore(Ut\MocksStore $casesStore)
+    {
+        $data = [];
+
+        foreach ($casesStore->items as $mock) {
+            $data[$mock->id] = $this->extractMock($mock);
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param Ut\Mock $mock
+     *
+     * @return array
+     */
+    protected function extractMock(Ut\Mock $mock)
+    {
+        return [
+            'id' => $mock->id, 
+            'expr' => $this->extractExpression($mock->expr), 
+            'mock_behaviour' => $this->extractMockBehaviour($mock->behav),
+            'enabled' => $mock->enabled
+        ];
     }
 
     /**
@@ -121,18 +181,48 @@ class AnnotationLoader implements PlanLoader
      */
     protected function extractExpression(Ut\Expression $expr)
     {
-        $data = [];
-
         switch (true) {
             case $expr instanceof Ut\Expression\Method:
-                $data['method'] = ['obj' => $expr->obj, 'func' => $expr->func, 'member' => $expr->member];
-                break;
-            case $expr instanceof Ut\Expression\NotCase:
-                $data['not_case'] = ['id' => $expr->id];
-                break;
+                return ['type' => 'method', 'config' => ['obj' => $expr->obj, 'func' => $expr->func, 'member' => $expr->member]];
+            case $expr instanceof Ut\Expression\OppositeMockOf:
+                return ['type' => 'opposite_mock_of', 'config' => ['id' => $expr->id]];
+            case $expr instanceof Ut\Expression\Mocks:
+                return ['type' => 'mocks', 'config' => ['items' => $expr->items]];
         }
 
-        return $data;
+        return [];
+    }
+
+    /**
+     * @param Ut\MockBehaviour  $behaviour
+     * @param mixed             $returnValue
+     *
+     * @return array
+     */
+    protected function extractMockBehaviour(Ut\MockBehaviour $behaviour = null, $returnValue = null)
+    {
+        switch (true) {
+            case $behaviour instanceof Ut\MockBehaviour\Noop:
+                return ['type' => 'noop'];
+            case $behaviour instanceof Ut\MockBehaviour\RetInstanceOf:
+                return ['type' => 'ret_instance_of', 'config' => ['full_class' => $behaviour->fullClass]];
+            case $behaviour instanceof Ut\MockBehaviour\RetVal:
+                return ['type' => 'ret_val', 'config' => ['val' => $behaviour->val]];
+            case isset($returnValue):
+                return ['type' => 'ret_val', 'config' => ['val' => $returnValue]];
+        }
+
+        return [];
+    }
+
+    /**
+     * @param Ut\Exception_ $exception
+     *
+     * @return array
+     */
+    protected function extractException(Ut\Exception_ $exception)
+    {
+        return ['full_class' => $exception->fullClass, 'code' => $exception->code, 'msg' => $exception->msg];
     }
 
     /**
@@ -142,6 +232,6 @@ class AnnotationLoader implements PlanLoader
      */
     protected function extractType(Ut\Type $type)
     {
-        return ['type' => $type->type];
+        return ['type' => $type->val];
     }
 }

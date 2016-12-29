@@ -1,22 +1,22 @@
 <?php
 
-namespace Kassko\Test\UnitTestsGenerator\PlanModel\Case;
+namespace Kassko\Test\UnitTestsGenerator\PlanModel\Mock;
 
-use Kassko\Test\UnitTestsGenerator\PlanModel\AbstractCase;
+use Kassko\Test\UnitTestsGenerator\PlanModel\AbstractMock;
 
 /**
- * CaseCollection
+ * Mocks
  */
-class CaseCollection extends AbstractCase
+class Mocks extends AbstractMock
 {
     /**
-     * @var Case_[]
+     * @var Mock[]
      */ 
     private $cases;
 
     /**
      * @param string    $id
-     * @param Case_[]   $cases (default)
+     * @param Mock[]   $cases (default)
      * @param bool      $enabled (default)
      */
     public function __construct($id, array $cases = [], $enabled = true)
@@ -27,7 +27,7 @@ class CaseCollection extends AbstractCase
     }   
     
     /**
-     * @param Case_ $case
+     * @param Mock $case
      *
      * @return self
      */ 
@@ -41,7 +41,7 @@ class CaseCollection extends AbstractCase
     /**
      * @param string $id
      *
-     * @return Case_
+     * @return Mock
      */
     public function getCase($id)
     {
@@ -49,7 +49,7 @@ class CaseCollection extends AbstractCase
     }
 
     /**
-     * @return Case_[]
+     * @return Mock[]
      */
     public function getCases()
     {

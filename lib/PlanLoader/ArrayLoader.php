@@ -7,9 +7,9 @@ use Kassko\Test\UnitTestsGenerator\PlanModel;
 use Kassko\Test\UnitTestsGenerator\PlanProviderResource;
 
 /**
- * ArrayPlanLoader
+ * ArrayLoader
  */
-class ArrayPlanLoader implements PlanLoader
+class ArrayLoader implements PlanLoader
 {
     /**
      * {@inheritdoc}

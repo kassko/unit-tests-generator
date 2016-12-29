@@ -226,6 +226,8 @@ class AddressTest extends \PHPUnit_Framework_TestCase
 <?php
 
 use Kassko\Test\UnitTestsGenerator\Annotation as Ut;
+use Kassko\Test\UnitTestsGenerator\Annotation\Expression as UtExpr;
+use Kassko\Test\UnitTestsGenerator\Annotation\MockBehaviour as UtBehav;
 
 class Manager
 {
@@ -241,19 +243,19 @@ class Manager
 
     /**
      * @Ut\Expectations({
-     *  @Ut\Expectation(expect=@Value(true), path=@Path({"rich", "woman"})),
-     *  @Ut\Expectation(expect=@Value(false), path=@Path({"rich", "man"})),
-     *  @Ut\Expectation(expect=@Value(false), path=@Path({"poor", "woman"})),
-     *  @Ut\Expectation(expect=@Value(false), path=@Path({"poor", "man"})),
-     *  @Ut\Expectation(expect=@Exception_(class='MyException', code=1), path=@Path({"unknown_gender"}))
+     *  @Ut\Expectation(expected=true, path=@Path({"rich", "woman"})),
+     *  @Ut\Expectation(expected=false, path=@Path({"rich", "man"})),
+     *  @Ut\Expectation(expected=false, path=@Path({"poor", "woman"})),
+     *  @Ut\Expectation(expected=false, path=@Path({"poor", "man"})),
+     *  @Ut\Expectation(expected=@Ut\Exception_(class='MyException', code=1), path=@Path({"unknown_gender"}))
      * })
      *
-     * @Ut\CasesStore({
-     *  @Ut\Case_(id="rich", expr=@Ut\Method(obj="richService", func="isRich"), return=@Value(true)),
-     *  @Ut\Case_(id="poor", expr=@Ut\NotCase(id="rich")),
-     *  @Ut\Case_(id="woman", expr=@Ut\Method(obj="genderService", func="getGender", member=false), return=@Value("F")),
-     *  @Ut\Case_(id="man", expr=@Ut\Method(var="genderService", func="getGender"), return=@Value("M")),
-     *  @Ut\Case_(id="unknown_gender", expr=@Ut\Method(var="genderService", func="getGender"), return=@Ut\Value("R"))
+     * @Ut\MocksStore({
+     *  @Ut\Mock(id="rich", expr=@UtExpr\Method(obj="richService", func="isRich"), behav=@UtBehav\RetVal(true)),
+     *  @Ut\Mock(id="poor", expr=@UtExpr\OppositeMockOf("rich")),
+     *  @Ut\Mock(id="woman", expr=@UtExpr\Method(obj="genderService", func="getGender", member=false), return="F"),
+     *  @Ut\Mock(id="man", expr=@UtExpr\Method(obj="genderService", func="getGender"), return="M"),
+     *  @Ut\Mock(id="unknown_gender", expr=@UtExpr\Method(obj="genderService", func="getGender"), return="R")
      * })
      */
     public function isRichWoman(\GenderService $genderService)
@@ -267,19 +269,19 @@ class Manager
 
     /**
      * @Ut\Expectations({
-     *  @Ut\Expectation(expect=@Value(true), path=@Path({"rich", "woman"})),
-     *  @Ut\Expectation(expect=@Value(false), path=@Path({"rich", "man"})),
-     *  @Ut\Expectation(expect=@Value(false), path=@Path({"poor", "woman"})),
-     *  @Ut\Expectation(expect=@Value(false), path=@Path({"poor", "man"})),
-     *  @Ut\Expectation(expect=@Exception(class='MyException', code=1), path=@Path({"unknown_gender"}))
+     *  @Ut\Expectation(expected=true, path=@Path({"rich", "woman"})),
+     *  @Ut\Expectation(expected=false, path=@Path({"rich", "man"})),
+     *  @Ut\Expectation(expected=false, path=@Path({"poor", "woman"})),
+     *  @Ut\Expectation(expected=false, path=@Path({"poor", "man"})),
+     *  @Ut\Expectation(expected=@Ut\Exception_(class='MyException', code=1), path=@Path({"unknown_gender"}))
      * })
      *
-     * @Ut\CasesStore({
-     *  @Ut\Case_(id="rich", expr=@Ut\Method(prop="richService", func="isRich"), return=@Ut\Value(true)),
-     *  @Ut\Case_(id="poor", expr=@Ut\NotCase("rich")),
-     *  @Ut\Case_(id="woman", expr=@Ut\Method(var="genderService", func="getGender"), return=@Ut\InstanceOf_("Female")),
-     *  @Ut\Case_(id="man", expr=@Ut\Method(var="genderService", func="getGender"), return=@Ut\InstanceOf_("Male")),
-     *  @Ut\Case_(id="unknown_gender", expr=@Ut\Method(var="genderService", func="getGender"), return=@Ut\InstanceOf_("UnknownType"))
+     * @Ut\MocksStore({
+     *  @Ut\Mock(id="rich", expr=@UtExpr\Method(prop="richService", func="isRich"), return=true),
+     *  @Ut\Mock(id="poor", expr=@UtExpr\OppositeMockOf("rich")),
+     *  @Ut\Mock(id="woman", expr=@UtExpr\Method(obj="genderService", func="getGender"), behav=@UtBehav\RetInstanceOf("Female")),
+     *  @Ut\Mock(id="man", expr=@UtExpr\Method(obj="genderService", func="getGender"), behav=@UtBehav\RetInstanceOf("Male")),
+     *  @Ut\Mock(id="unknown_gender", expr=@UtExpr\Method(obj="genderService", func="getGender"), behav=@UtBehav\RetInstanceOf("UnknownType"))
      * })
      */
     public function isRichWomanBis($genderService)

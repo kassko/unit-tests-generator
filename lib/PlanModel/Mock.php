@@ -3,9 +3,9 @@
 namespace Kassko\Test\UnitTestsGenerator\PlanModel;
 
 /**
- * Case_
+ * Mock
  */
-interface Case_
+interface Mock
 {
     public function getId();
 }
