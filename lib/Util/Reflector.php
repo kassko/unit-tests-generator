@@ -34,30 +34,30 @@ class Reflector
     }
 
     /**
-     * @param string $class
+     * @param string $fullClass
      *
      * @return ReflectionClass[]
      */
-    public function getReflectionClass($class)
+    public function getReflectionClass($fullClass)
     {
-        if (! isset($this->reflectionClasses[$class])) {
-            $this->reflectionClasses[$class] = new ReflectionClass($class);
+        if (! isset($this->reflectionClasses[$fullClass])) {
+            $this->reflectionClasses[$fullClass] = new ReflectionClass($fullClass);
         }
 
-        return $this->reflectionClasses[$class];
+        return $this->reflectionClasses[$fullClass];
     }
 
     /**
-     * @param string $class
+     * @param string $fullClass
      *
      * @return array
      */
-    public function getGetters($class)
+    public function getGetters($fullClass)
     {
-        if (! isset($this->classes[$class]['getters'])) {
+        if (! isset($this->classes[$fullClass]['getters'])) {
 
-            $properties = $this->getPropertiesNames($class);
-            $methods = $this->getMethodsNames($class);
+            $properties = $this->getPropertiesNames($fullClass);
+            $methods = $this->getMethodsNames($fullClass);
 
             $getters = array_filter(
                 $methods,
@@ -88,25 +88,25 @@ class Reflector
                 }
             );
 
-            $this->classes[$class]['getters'] = array_merge($getters, $isers, $hasers);
+            $this->classes[$fullClass]['getters'] = array_merge($getters, $isers, $hasers);
         }
 
-        return $this->classes[$class]['getters'];
+        return $this->classes[$fullClass]['getters'];
     }
 
     /**
-     * @param string $class
+     * @param string $fullClass
      *
      * @return array
      */
-    public function getSetters($class)
+    public function getSetters($fullClass)
     {
-        if (! isset($this->classes[$class]['setters'])) {
+        if (! isset($this->classes[$fullClass]['setters'])) {
 
-            $properties = $this->getPropertiesNames($class);
-            $methods = $this->getMethodsNames($class);
+            $properties = $this->getPropertiesNames($fullClass);
+            $methods = $this->getMethodsNames($fullClass);
 
-            $this->classes[$class]['setters'] = array_filter(
+            $this->classes[$fullClass]['setters'] = array_filter(
                 $methods,
                 function ($method) use ($properties) {
                     return
@@ -117,79 +117,81 @@ class Reflector
             );
         }
 
-        return $this->classes[$class]['setters'];
+        return $this->classes[$fullClass]['setters'];
     }
 
     /**
-     * @param string $class
+     * @param string $fullClass
      * @param string $property
-     *
-     * @return string
-     */
-    public function getPropertyType($class, $property)
-    {
-        return $this->getPropertyDocComment($class, $property, '/@var\s+([^\s]+)/', 'type');
-    }
-
-    /**
-     * @param string $class
-     * @param string $method
-     *
-     * @return string
-     */
-    public function getMethodReturnValue($class, $method)
-    {
-        return $this->getFirstMethodDocComment($class, $method, '/@return\s+([^\s]+)/', 'return_value');
-    }
-
-    /**
-     * @param string $class
-     * @param string $method
-     *
-     * @return string
-     */
-    public function getMethodParams($class, $method)
-    {
-        return $this->getMethodDocComment($class, $method, '/@param\s+([^\s]+)\s+([^\s]+)/', 'params');
-    }
-
-    /**
-     * @param string $class
      *
      * @return array
      */
-    public function getConstructorParams($class)
+    public function getPropertyType($fullClass, $property)
     {
-        return $this->getMethodDocComment($class, '__construct', '/@param\s+([^\s]+)\s+([^\s]+)/', 'params');
+        return $this->getPropertyDocComment($fullClass, $property, '/@var\s+([^\s]+)/', 'type');
     }
 
     /**
-     * @param string $class
+     * @param string $fullClass
+     * @param string $method
+     *
+     * @return array
+     */
+    public function getMethodReturnType($fullClass, $method)
+    {
+        return $this->getFirstMethodDocComment($fullClass, $method, '/@return\s+([^\s]+)/', 'return_type');
+    }
+
+    /**
+     * @param string $fullClass
+     * @param string $method
+     *
+     * @return array
+     */
+    public function getMethodParams($fullClass, $method)
+    {
+        return $this->getMethodDocComment($fullClass, $method, '/@param\s+([^\s]+)\s+([^\s]+)/', 'params');
+    }
+
+    /**
+     * @param string $fullClass
+     *
+     * @return array
+     */
+    public function getConstructorParams($fullClass)
+    {
+        return $this->getMethodDocComment($fullClass, '__construct', '/@param\s+([^\s]+)\s+([^\s]+)/', 'params');
+    }
+
+    /**
+     * @param string $fullClass
      *
      * @return bool
      */
-    public function hasConstructor($class)
+    public function hasConstructor($fullClass)
     {
-        return $this->getReflectionClass($class)->hasMethod('__construct');
+        return $this->getReflectionClass($fullClass)->hasMethod('__construct');
     }
 
     /**
-     * @param string $class
+     * @param string $fullClass
      * @param string $property
      * @param string $pattern
      * @param string $tag
      *
-     * @return string
+     * @return array
      */
-    protected function getPropertyDocComment($class, $property, $pattern, $tag)
+    protected function getPropertyDocComment($fullClass, $property, $pattern, $tag)
     {
-        $properties = &$this->getProperties($class);
+        $properties = &$this->getProperties($fullClass);
 
         if (! isset($properties['struct'][$property][$tag])) {
             $reflProperty = $properties['struct'][$property]['refl'];
 
             if (preg_match($pattern, $reflProperty->getDocComment(), $matches)) {
-                $properties['struct'][$property][$tag] = $matches[1];
+                $namespace = $this->getReflectionClass($fullClass)->getNamespaceName();
+                list($type, $paramFullClass) = $this->resolveType($matches[1], $namespace);
+                $properties['struct'][$property][$tag] = ['type' => $type, 'full_class' => $paramFullClass];
             }
         }
 
@@ -197,37 +199,37 @@ class Reflector
     }
 
     /**
-     * @param string $class
+     * @param string $fullClass
      *
      * @return string
      */
-    protected function getPropertiesNames($class)
+    protected function getPropertiesNames($fullClass)
     {
-        return $this->getProperties($class)['meta']['names'];
+        return $this->getProperties($fullClass)['meta']['names'];
     }
 
     /**
-     * @param string $class
+     * @param string $fullClass
      *
      * @return array
      */
-    protected function &getProperties($class)
+    protected function &getProperties($fullClass)
     {
-        if (! isset($this->classes[$class]['properties'])) {
-            $refl = $this->getReflectionClass($class);
+        if (! isset($this->classes[$fullClass]['properties'])) {
+            $refl = $this->getReflectionClass($fullClass);
 
             $noStaticFlag = ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED | ReflectionProperty::IS_PRIVATE;
 
-            $this->classes[$class]['properties'] = ['struct' => [], 'meta' => ['names' => []]];
+            $this->classes[$fullClass]['properties'] = ['struct' => [], 'meta' => ['names' => []]];
             foreach ($refl->getProperties($noStaticFlag) as $reflProperty) {
-                $this->classes[$class]['properties']['struct'][$reflProperty->getName()] = [
+                $this->classes[$fullClass]['properties']['struct'][$reflProperty->getName()] = [
                     'refl' => $reflProperty, 'name' => $reflProperty->getName(), 'type' => null
                 ];
-                $this->classes[$class]['properties']['meta']['names'][] = $reflProperty->getName();
+                $this->classes[$fullClass]['properties']['meta']['names'][] = $reflProperty->getName();
             }
         }
 
-        return $this->classes[$class]['properties'];
+        return $this->classes[$fullClass]['properties'];
     }
 
     /**
@@ -239,13 +241,13 @@ class Reflector
     protected function resolveType($type, $namespace)
     {
         if (in_array($type, ['boolean', 'float', 'integer', 'string', 'array'])) {
-            $class = null;
+            $fullClass = null;
         } else {
-            $class = empty($namespace) ? $type : $this->classNameParser->join($namespace, $type);
+            $fullClass = empty($namespace) ? $type : $this->classNameParser->join($namespace, $type);
             $type = 'object';
         }
 
-        return [$type, $class];
+        return [$type, $fullClass];
     }
 
     /**
@@ -254,7 +256,7 @@ class Reflector
      * @param string $pattern
      * @param string $tag
      *
-     * @return string
+     * @return array
      */
     protected function getFirstMethodDocComment($fullClass, $method, $pattern, $tag)
     {
@@ -269,8 +271,10 @@ class Reflector
 
             if (preg_match($pattern, $reflMethod->getDocComment(), $matches)) {
                 if (count($matches) > 1) {
-                    if ('return_value' === $tag) {
-                        $methods['struct'][$method][$tag] = $matches[1];
+                    if ('return_type' === $tag) {
+                        $namespace = $this->getReflectionClass($fullClass)->getNamespaceName();
+                        list($type, $paramFullClass) = $this->resolveType($matches[1], $namespace);
+                        $methods['struct'][$method][$tag] = ['type' => $type, 'full_class' => $paramFullClass];
                     }
                 }
             }
@@ -319,40 +323,40 @@ class Reflector
     }
 
     /**
-     * @param string $class
+     * @param string $fullClass
      *
      * @return array
      */
-    protected function getMethodsNames($class)
+    protected function getMethodsNames($fullClass)
     {
-        return $this->getMethods($class)['meta']['names'];
+        return $this->getMethods($fullClass)['meta']['names'];
     }
 
     /**
-     * @param string $class
+     * @param string $fullClass
      *
      * @return array
      */
-    protected function &getMethods($class)
+    protected function &getMethods($fullClass)
     {
-        if (! isset($this->classes[$class]['methods']['meta']['names'])) {
-            $refl = $this->getReflectionClass($class);
+        if (! isset($this->classes[$fullClass]['methods']['meta']['names'])) {
+            $refl = $this->getReflectionClass($fullClass);
 
             $noStaticFlag = ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED | ReflectionProperty::IS_PRIVATE;
 
-            $this->classes[$class]['methods']['meta']['names'] = [];
-            $this->classes[$class]['methods']['struct'] = [];
+            $this->classes[$fullClass]['methods']['meta']['names'] = [];
+            $this->classes[$fullClass]['methods']['struct'] = [];
             foreach ($refl->getMethods($noStaticFlag) as $reflMethod) {
-                $this->classes[$class]['methods']['struct'][$reflMethod->getName()] = [
+                $this->classes[$fullClass]['methods']['struct'][$reflMethod->getName()] = [
                     'refl' => $reflMethod,
                     'name' => $reflMethod->getName(),
-                    'return_value' => null,
+                    'return_type' => null,
                     'args' => null
                 ];
-                $this->classes[$class]['methods']['meta']['names'][] = $reflMethod->getName();
+                $this->classes[$fullClass]['methods']['meta']['names'][] = $reflMethod->getName();
             }
         }
 
-        return $this->classes[$class]['methods'];
+        return $this->classes[$fullClass]['methods'];
     }
 }

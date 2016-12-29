@@ -2,6 +2,8 @@
 
 namespace Kassko\Test\UnitTestsGeneratorTest\Fixtures;
 
+use Kassko\Test\UnitTestsGeneratorTest\Fixtures\Address;
+
 class Person
 {
     /**
@@ -12,13 +14,17 @@ class Person
      * @var integer
      */
     private $age;
+    /**
+     * @var Address
+     */
+    private $address;
 
     /**
      * @param string $name
      * @param integer $age
      * @param Address $address
      */
-    public function __construct($name, $age, $address)
+    public function __construct($name, $age, Address $address)
     {
         $this->name = $name;
         $this->age = $age;
@@ -57,6 +63,23 @@ class Person
     public function setAge($age)
     {
         $this->age = $age;
+        return $this;
+    }
+
+    /**
+     * @return Address
+     */
+    public function getAddress()
+    {
+        return $this->age;
+    }
+
+    /**
+     * @param Address $address
+     */
+    public function setAddress(Address $address)
+    {
+        $this->address = $address;
         return $this;
     }
 }

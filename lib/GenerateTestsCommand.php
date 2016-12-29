@@ -83,8 +83,8 @@ class GenerateTestsCommand
         foreach ($this->filesFinder->findFiles() as $filePath) {
             require_once $filePath;
 
-            $fullClasses = $this->phpElementsExtractor->extractClassesFromFile($filePath);
-            foreach ($fullClasses as $fullClass) {
+            $this->phpElementsExtractor->parseFile($filePath);
+            foreach ($this->phpElementsExtractor->getFullClasses() as $fullClass) {
                 $classCodeModel = new CodeModel\Class_($fullClass);
 
                 $this->codeModelCreator->loadCodeModel($classCodeModel);

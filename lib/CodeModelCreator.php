@@ -165,8 +165,9 @@ class CodeModelCreator
         $method = $classModel->createMethod($getter);
 
         $property = $this->propertizeGetter($getter);
-        $type = $this->reflector->getPropertyType($fullClass, $property);
-        $value = $this->faker->generateValueFromType($type);
+        
+        $typeInfo = $this->reflector->getPropertyType($fullClass, $property);
+        $value = $this->faker->generateValueFromType($typeInfo['type'], $typeInfo['full_class']);
 
         $class = $this->classNameParser->extractClassFromFullClass($fullClass);
         $objectName = $this->generateAnObjectNameFromClass($class);
@@ -197,11 +198,11 @@ class CodeModelCreator
         $fullClass = $classModel->getFullClass();
         $method = $classModel->createMethod($setter);
 
-        $returnValue = $this->reflector->getMethodReturnValue($fullClass, $setter);
+        $returnTypeInfo = $this->reflector->getMethodReturnType($fullClass, $setter);
 
         $property = $this->propertizeSetter($setter);
-        $type = $this->reflector->getPropertyType($fullClass, $property);
-        $value = $this->faker->generateValueFromType($type);
+        $typeInfo = $this->reflector->getPropertyType($fullClass, $property);
+        $value = $this->faker->generateValueFromType($typeInfo['type'], $typeInfo['full_class']);
 
         $class = $this->classNameParser->extractClassFromFullClass($fullClass);
         $objectName = $this->generateAnObjectNameFromClass($class);
@@ -209,7 +210,7 @@ class CodeModelCreator
         $memberNameValue = new CodeModel\Value\MemberNameValue($objectName);
         $highValueParam = new CodeModel\Parameter(new CodeModel\Value\HighValue($value));
 
-        if ($returnValue === 'self' || $returnValue === $fullClass) {
+        if ($returnTypeInfo['type'] === 'self' || $returnTypeInfo['full_class'] === $fullClass || $returnTypeInfo['type'] === '$this') {
             $assert = new CodeModel\Statement\Assert\BinaryAssert(
                 $memberNameValue,
                 new CodeModel\Value\ExpressionValue(
@@ -292,7 +293,7 @@ class CodeModelCreator
                 $statements[$param['full_class']] = $this->createParameterAssignStatement($param['full_class'], $param['name']);
                 $newAssignRoot->addParameter(new CodeModel\Parameter(new CodeModel\Value\VariableNameValue($param['name']), $objectName, $param['name']));
             } else {
-                $highValue = $this->faker->generateValueFromType($param['type']);
+                $highValue = $this->faker->generateValueFromType($param['type'], $param['full_class']);
                 $newAssignRoot->addParameter(new CodeModel\Parameter(new CodeModel\Value\HighValue($highValue), $objectName, $param['name']));
             }
         }
