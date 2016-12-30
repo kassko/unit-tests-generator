@@ -190,7 +190,7 @@ class Reflector
 
             if (preg_match($pattern, $reflProperty->getDocComment(), $matches)) {
                 $namespace = $this->getReflectionClass($fullClass)->getNamespaceName();
-                list($type, $paramFullClass) = $this->resolveType($matches[1], $namespace);
+                list($type, $paramFullClass) = $this->resolveType($matches[1], $namespace, $fullClass);
                 $properties['struct'][$property][$tag] = ['type' => $type, 'full_class' => $paramFullClass];
             }
         }
@@ -234,16 +234,20 @@ class Reflector
 
     /**
      * @param string $type
-     * @param string $namespace
+     * @param string $parentNamespace
+     * @param string $parentFullClass
      *
      * @return string
      */
-    protected function resolveType($type, $namespace)
+    protected function resolveType($type, $parentNamespace, $parentFullClass)
     {
-        if (in_array($type, ['boolean', 'float', 'integer', 'string', 'array'])) {
+        if ('self' === $type || '$this' === $type) {
+            $type = 'object';
+            $fullClass = $parentFullClass;
+        } elseif (in_array($type, ['boolean', 'float', 'integer', 'string', 'array'])) {
             $fullClass = null;
         } else {
-            $fullClass = empty($namespace) ? $type : $this->classNameParser->join($namespace, $type);
+            $fullClass = empty($parentNamespace) ? $type : $this->classNameParser->join($parentNamespace, $type);
             $type = 'object';
         }
 
@@ -273,7 +277,7 @@ class Reflector
                 if (count($matches) > 1) {
                     if ('return_type' === $tag) {
                         $namespace = $this->getReflectionClass($fullClass)->getNamespaceName();
-                        list($type, $paramFullClass) = $this->resolveType($matches[1], $namespace);
+                        list($type, $paramFullClass) = $this->resolveType($matches[1], $namespace, $fullClass);
                         $methods['struct'][$method][$tag] = ['type' => $type, 'full_class' => $paramFullClass];
                     }
                 }
@@ -307,7 +311,7 @@ class Reflector
                     if ('params' === $tag) {
                         $namespace = $this->getReflectionClass($fullClass)->getNamespaceName();
                         foreach ($matches[1] as $index => $match) {
-                            list($type, $paramFullClass) = $this->resolveType($match, $namespace);
+                            list($type, $paramFullClass) = $this->resolveType($match, $namespace, $fullClass);
                             $methods['struct'][$method][$tag][$index] = ['type' => $type, 'full_class' => $paramFullClass];
                         }
 

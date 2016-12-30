@@ -2,8 +2,6 @@
 
 namespace Kassko\Test\UnitTestsGeneratorTest\Fixtures;
 
-use Kassko\Test\UnitTestsGeneratorTest\Fixtures\Address;
-
 class Person
 {
     /**
@@ -71,7 +69,7 @@ class Person
      */
     public function getAddress()
     {
-        return $this->age;
+        return $this->address;
     }
 
     /**

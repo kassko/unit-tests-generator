@@ -210,7 +210,7 @@ class CodeModelCreator
         $memberNameValue = new CodeModel\Value\MemberNameValue($objectName);
         $highValueParam = new CodeModel\Parameter(new CodeModel\Value\HighValue($value));
 
-        if ($returnTypeInfo['type'] === 'self' || $returnTypeInfo['full_class'] === $fullClass || $returnTypeInfo['type'] === '$this') {
+        if ($returnTypeInfo['full_class'] === $fullClass) {
             $assert = new CodeModel\Statement\Assert\BinaryAssert(
                 $memberNameValue,
                 new CodeModel\Value\ExpressionValue(
