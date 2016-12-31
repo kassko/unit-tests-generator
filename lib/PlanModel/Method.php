@@ -19,7 +19,7 @@ class Method
     private $enabled;
 
     /**
-     * @param Expectation[] $expectations (default)
+     * @param Expectation[]      $expectations (default)
      * @param bool          $enabled (default)
      */
     public function __construct(array $expectations = [], $enabled = true)
@@ -31,8 +31,8 @@ class Method
     /**
      * @param Expectation $expectation
      *
-     * @return self
-     */ 
+     * @return $this
+     */
     public function addExpectation(Expectation $expectation)
     {
         $this->expectations[] = $expectation;

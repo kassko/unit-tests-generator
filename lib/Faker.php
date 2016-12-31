@@ -2,8 +2,6 @@
 
 namespace Kassko\Test\UnitTestsGenerator;
 
-use DomainException;
-
 /**
  * Faker
  */
@@ -11,15 +9,17 @@ class Faker
 {
     /**
      * @param string $type
-     * @param string $fullClass
+     * @param string $semanticType
      *
      * @return string
      *
-     * @throws DomainException
+     * @throws \DomainException
      */
-    public function generateValueFromType($type, $fullClass)
+    public function generateValueFromType($type, $semanticType = null)
     {
-        if ($type !== 'object') {
+        if (null !== $semanticType) {
+            return $this->generateString();//For the moment.
+        } elseif ('object' !== $type) {
             switch ($type) {
                 case 'string':
                 case 'mixed':
@@ -28,18 +28,34 @@ class Faker
                 case 'integer':
                     return $this->generateInt();
                 case 'bool':
+                case 'boolean':
                     return $this->generateBool();
                 case 'float':
                     return $this->generateFloat();
                 case 'array':
                     return $this->generateArray();
+                case 'resource':
+                    return $this->generateString();//For the moment.
+                case 'null':
+                    return null;
+                case 'mixed':
+                    return $this->generateString();
+                case 'number':
+                    return $this->generateInt();
+                case 'callback':
+                    return function () {};
+                case 'array|object':
+                    return $this->generateArray();
+                case 'void':
+                    return null;
             }
 
-            throw new DomainException(sprintf('Invalid type "%s"', $type));
+            throw new \DomainException(sprintf('Invalid type "%s"', $type));
+        } elseif ('DateTime' === $type) {
+            return new \DateTime;
         }
-            
+
         return $this->generateString();//For the moment.
-        //throw new \LogicException(sprintf('Faker not implemented yet for class "%s"', $fullClass));
     }
 
     /**

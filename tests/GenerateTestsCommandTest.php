@@ -16,7 +16,7 @@ use Kassko\Test\UnitTestsGenerator\PlanLoader\AnnotationLoader;
 use Kassko\Test\UnitTestsGenerator\PlanLoader\ArrayLoader;
 use Kassko\Test\UnitTestsGenerator\TestGenerator;
 use Kassko\Test\UnitTestsGenerator\Util\ClassNameParser;
-use Kassko\Test\UnitTestsGenerator\Util\PhpElementsExtractor;
+use Kassko\Test\UnitTestsGenerator\Util\PhpElementsParser;
 use Kassko\Test\UnitTestsGenerator\Util\Reflector;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -27,13 +27,15 @@ class GenerateTestsCommandTest extends \PHPUnit_Framework_TestCase
         AnnotationRegistry::registerLoader('class_exists');
 
         $classNameParser = new ClassNameParser;
-        $reflector = new Reflector($classNameParser);
+        $phpElementsParser = new PhpElementsParser;
+
+        $reflector = new Reflector($phpElementsParser);
         $faker = new Faker;
 
         $this->generateTestsCommand = new GenerateTestsCommand(
             [],
             new FilesFinder(['input_files_locations' => [__DIR__ . '/Fixtures/']]),
-            new PhpElementsExtractor,
+            $phpElementsParser,
             new CodeModelCreator(
                 [
                     'tests_dep_fqcn' => ['Kassko\\Util\\MemberAccessor\\ObjectMemberAccessor']

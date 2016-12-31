@@ -75,7 +75,7 @@ class NewAssign implements Expression
     /**
      * @param string $constructor (default)
      *
-     * @return self
+     * @return $this
      */
     public function withConstructor($constructor = true)
     {
@@ -95,7 +95,7 @@ class NewAssign implements Expression
     /**
      * @param Parameter $parameter
      *
-     * @return self
+     * @return $this
      */
     public function addParameter($parameter)
     {
@@ -107,7 +107,7 @@ class NewAssign implements Expression
     /**
      * @param Parameter[] $parameters
      *
-     * @return self
+     * @return $this
      */
     public function setParameters(array $parameters)
     {
@@ -127,7 +127,7 @@ class NewAssign implements Expression
     /**
      * @param string $stub (default)
      *
-     * @return self
+     * @return $this
      */
     public function makeStub($stub = true)
     {

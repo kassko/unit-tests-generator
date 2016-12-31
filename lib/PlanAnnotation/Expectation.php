@@ -2,8 +2,6 @@
 
 namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation;
 
-use Kassko\Test\UnitTestsGenerator\PlanAnnotation\Expression;
-
 /**
 * @Annotation
 * @Target({"ANNOTATION"})
@@ -15,11 +13,15 @@ final class Expectation
     /**
      * @var mixed
      */
-    public $expected;
+    public $return;
     /**
-     * @var array<\Kassko\Test\UnitTestsGenerator\PlanAnnotation\Path>
+     * @var \Kassko\Test\UnitTestsGenerator\PlanAnnotation\Mocks
      */
-    public $path;
+    public $mocks;
+    /**
+     * @var \Kassko\Test\UnitTestsGenerator\PlanAnnotation\Spies
+     */
+    public $spies;
     /**
      * @var bool
      */

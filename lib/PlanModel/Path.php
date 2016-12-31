@@ -11,7 +11,7 @@ class Path
 {
     /**
      * @var Case[]
-     */ 
+     */
     private $cases;
 
     /**
@@ -20,13 +20,13 @@ class Path
     public function __construct(array $cases = [])
     {
         $this->cases = $cases;
-    }   
-    
+    }
+
     /**
      * @param Case $case
      *
-     * @return self
-     */ 
+     * @return $this
+     */
     public function addCase(Case $case)
     {
         $this->cases[$case->getId()] = $case;

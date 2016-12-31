@@ -8,24 +8,16 @@ namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation;
 *
 * @author kko
 */
-final class Mock
+final class Spy
 {
     /**
      * @var string
      */
     public $id;
     /**
-     * @var mixed array<\Kassko\Test\UnitTestsGenerator\PlanAnnotation\Expression>
+     * @var mixed \Kassko\Test\UnitTestsGenerator\PlanAnnotation\SpyKind
      */
-    public $expr;
-    /**
-     * @var mixed
-     */
-    public $behav;
-    /**
-     * @var mixed
-     */
-    public $return;
+    public $expected;
     /**
      * @var bool
      */

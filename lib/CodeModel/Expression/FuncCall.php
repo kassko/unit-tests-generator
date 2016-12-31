@@ -74,7 +74,7 @@ class FuncCall implements Expression
     /**
      * @param bool $fluent (optional)
      *
-     * @return self
+     * @return $this
      */
     public function makeFluent($fluent = true)
     {

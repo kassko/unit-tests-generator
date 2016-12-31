@@ -26,7 +26,7 @@ class CustomStmt implements Statement
     /**
      * @param Expression $expression
      *
-     * @return self
+     * @return $this
      */
     public function setExpression($expression)
     {

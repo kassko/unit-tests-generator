@@ -4,15 +4,13 @@ namespace Kassko\Test\UnitTestsGenerator\PlanLoader;
 
 use Doctrine\Common\Annotations\Reader;
 use Kassko\Test\UnitTestsGenerator\PlanAnnotation as Ut;
-use Kassko\Test\UnitTestsGenerator\PlanLoader;
-use Kassko\Test\UnitTestsGenerator\PlanModel;
 use Kassko\Test\UnitTestsGenerator\PlanProviderResource;
 use Kassko\Test\UnitTestsGenerator\Util\Reflector;
 
 /**
  * AnnotationLoader
  */
-class AnnotationLoader implements PlanLoader
+class AnnotationLoader extends \Kassko\Test\UnitTestsGenerator\AbstractPlanLoader
 {
     /**
      * @var Reader
@@ -22,10 +20,6 @@ class AnnotationLoader implements PlanLoader
      * @var Reflector
      */
     private $reflector;
-    /**
-     * @var ArrayLoader
-     */
-    private $arrayLoader;
 
     /**
      * @param Reader        $reader
@@ -34,9 +28,10 @@ class AnnotationLoader implements PlanLoader
      */
     public function __construct(Reader $reader, Reflector $reflector, ArrayLoader $arrayLoader)
     {
+        parent::__construct($arrayLoader);
+
         $this->reader = $reader;
         $this->reflector = $reflector;
-        $this->arrayLoader = $arrayLoader;
     }
 
     /**
@@ -48,42 +43,84 @@ class AnnotationLoader implements PlanLoader
     }
 
     /**
+     * @param array $annotations
+     * @param array $classes
+     *
+     * @return bool
+     */
+    protected function containsAtLeastOneAnnotationsOfGivenClasses(array $annotations, array $classes)
+    {
+        foreach ($annotations as $annotation) {
+            if (in_array(get_class($annotation), $classes)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public function load(PlanModel\Class_ $classPlanModel, PlanProviderResource $providerResource)
+    protected function getData(PlanProviderResource $providerResource)
     {
         $data = [];
 
         $fullClass = $providerResource->getResource();
         $reflClass = $this->reflector->getReflectionClass($fullClass);
-        foreach ($reflClass->getMethods() as $reflMethod) {
-            $methodName = $reflMethod->getName();
 
-            $annotations = $this->reader->getMethodAnnotations($reflMethod);
-            foreach ($annotations as $annotation) {
-                switch (true) {
-                    case $annotation instanceof Ut\MocksStore:
-                        $data['methods'][$methodName] = ['mocks_store' => $this->extractMocksStore($annotation)];
-                        break;
-                }
-            }
-        }
-
-        $data['props'] = [];
+        $data['properties'] = [];
         foreach ($reflClass->getProperties() as $reflProperty) {
-            $propName = $reflProperty->getName();
-
             $annotations = $this->reader->getPropertyAnnotations($reflProperty);
+            if (!$this->containsAtLeastOneAnnotationsOfGivenClasses($annotations, [Ut\Type::class])) {
+                continue;
+            }
+
+            $propName = $reflProperty->getName();
+            $data['properties'][$propName]['config'] = [];
+            $data['properties'][$propName]['name'] = $propName;
+
             foreach ($annotations as $annotation) {
                 switch (true) {
                     case $annotation instanceof Ut\Type:
-                        $data['props'][$propName] = ['type' => $this->extractType($annotation->type)];
+                        $data['properties'][$propName]['config']['type'] = $this->extractType($annotation->type);
                         break;
                 }
             }
         }
 
-        return $this->arrayLoader->load($classPlanModel, new PlanProviderResource('array', $data));
+        foreach ($reflClass->getMethods() as $reflMethod) {
+            $annotations = $this->reader->getMethodAnnotations($reflMethod);
+            if (
+                !$this->containsAtLeastOneAnnotationsOfGivenClasses(
+                    $annotations,
+                    [Ut\Expectations::class, Ut\MocksStore::class, Ut\SpiesStore::class]
+                )
+            ) {
+                continue;
+            }
+
+            $methodName = $reflMethod->getName();
+            $data['methods'][$methodName]['config'] = [];
+            $data['methods'][$methodName]['name'] = $methodName;
+
+            $hasAnnotations = false;
+            foreach ($annotations as $annotation) {
+                switch (true) {
+                    case $annotation instanceof Ut\Expectations:
+                        $data['methods'][$methodName]['config']['expectations'] = $this->extractExpectations($annotation);
+                        break;
+                    case $annotation instanceof Ut\MocksStore:
+                        $data['methods'][$methodName]['config']['mocks_store'] = $this->extractMocksStore($annotation);
+                        break;
+                    case $annotation instanceof Ut\SpiesStore:
+                        $data['methods'][$methodName]['config']['spies_store'] = $this->extractSpiesStore($annotation);
+                        break;
+                }
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -110,8 +147,9 @@ class AnnotationLoader implements PlanLoader
     protected function extractExpectation(Ut\Expectation $expectation)
     {
         return [
-            'expected' => $this->extractExpected($path->expected), 
-            'path' => $this->extractPath($expectation->path),
+            'return' => $this->extractExpected($expectation->return),
+            'mocks' => $this->extractMocks($expectation->mocks),
+            'spies' => $this->extractSpies($expectation->spies),
             'enabled' => $expectation->enabled
         ];
     }
@@ -134,25 +172,35 @@ class AnnotationLoader implements PlanLoader
     }
 
     /**
-     * @param Ut\Path $path
+     * @param Ut\Mocks $mocks (default|null)
      *
      * @return array
      */
-    protected function extractPath(Ut\Path $path)
+    protected function extractMocks(Ut\Mocks $mocks = null)
     {
-        return ['mocks' => $path->mocks];
+        return ['items' => $mocks ? $mocks->items : null];
     }
 
     /**
-     * @param Ut\MocksStore $casesStore
+     * @param Ut\Spies $spies (default|null)
      *
      * @return array
      */
-    protected function extractMocksStore(Ut\MocksStore $casesStore)
+    protected function extractSpies(Ut\Spies $spies = null)
+    {
+        return ['items' => $spies ? $spies->items : null];
+    }
+
+    /**
+     * @param Ut\MocksStore $mocksStore
+     *
+     * @return array
+     */
+    protected function extractMocksStore(Ut\MocksStore $mocksStore)
     {
         $data = [];
 
-        foreach ($casesStore->items as $mock) {
+        foreach ($mocksStore->items as $mock) {
             $data[$mock->id] = $this->extractMock($mock);
         }
 
@@ -167,8 +215,8 @@ class AnnotationLoader implements PlanLoader
     protected function extractMock(Ut\Mock $mock)
     {
         return [
-            'id' => $mock->id, 
-            'expr' => $this->extractExpression($mock->expr), 
+            'id' => $mock->id,
+            'expr' => $this->extractExpression($mock->expr),
             'mock_behaviour' => $this->extractMockBehaviour($mock->behav),
             'enabled' => $mock->enabled
         ];
@@ -205,7 +253,7 @@ class AnnotationLoader implements PlanLoader
             case $behaviour instanceof Ut\MockBehaviour\Noop:
                 return ['type' => 'noop'];
             case $behaviour instanceof Ut\MockBehaviour\RetInstanceOf:
-                return ['type' => 'ret_instance_of', 'config' => ['full_class' => $behaviour->fullClass]];
+                return ['type' => 'ret_instance_of', 'config' => ['class' => $behaviour->class]];
             case $behaviour instanceof Ut\MockBehaviour\RetVal:
                 return ['type' => 'ret_val', 'config' => ['val' => $behaviour->val]];
             case isset($returnValue):
@@ -216,13 +264,68 @@ class AnnotationLoader implements PlanLoader
     }
 
     /**
+     * @param Ut\SpiesStore $spiesStore
+     *
+     * @return array
+     */
+    protected function extractSpiesStore(Ut\SpiesStore $spiesStore)
+    {
+        $data = [];
+
+        foreach ($spiesStore->items as $spy) {
+            $data[$spy->id] = $this->extractSpy($spy);
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param Ut\Spy $spy
+     *
+     * @return array
+     */
+    protected function extractSpy(Ut\Spy $spy)
+    {
+        return [
+            'id' => $spy->id,
+            'expected' => $this->extractSpyKind($spy->expected),
+            'enabled' => $spy->enabled
+        ];
+    }
+
+    /**
+     * @param Ut\SpyKind $spyKind
+     *
+     * @return array
+     */
+    protected function extractSpyKind(Ut\SpyKind $spyKind)
+    {
+        switch (true) {
+            case $spyKind instanceof Ut\SpyKind\Calls:
+                return ['type' => 'calls', 'config' => $this->extractCalls($spyKind)];
+            case $spyKind instanceof Ut\SpyKind\Exception_:
+                return ['type' => 'exception', 'config' => $this->extractException($spyKind)];
+        }
+    }
+
+    /**
      * @param Ut\Exception_ $exception
      *
      * @return array
      */
-    protected function extractException(Ut\Exception_ $exception)
+    protected function extractCalls(Ut\SpyKind\Calls $calls)
     {
-        return ['full_class' => $exception->fullClass, 'code' => $exception->code, 'msg' => $exception->msg];
+        return ['nr' => $calls->nr, 'method' => $this->extractExpression($calls->method)];
+    }
+
+    /**
+     * @param Ut\Exception_ $exception
+     *
+     * @return array
+     */
+    protected function extractException(Ut\SpyKind\Exception_ $exception)
+    {
+        return ['class' => $exception->class, 'code' => $exception->code, 'message' => $exception->message];
     }
 
     /**
@@ -232,6 +335,6 @@ class AnnotationLoader implements PlanLoader
      */
     protected function extractType(Ut\Type $type)
     {
-        return ['type' => $type->val];
+        return ['value' => $type->value];
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Kassko\Test\UnitTestsGenerator;
 
-use InvalidArgumentException;
 use Kassko\Test\UnitTestsGenerator\CodeModel;
 use Kassko\Test\UnitTestsGenerator\CodeModelCreator;
 use Kassko\Test\UnitTestsGenerator\Faker;
@@ -94,7 +93,7 @@ class CodeModelCreator
     public function completeCodeModelFromPlanModel(CodeModel\Class_ $classCodeModel, PlanModel\Class_ $classPlanModel)
     {
         //...
-        
+
         return $classCodeModel;
     }
 
@@ -165,7 +164,7 @@ class CodeModelCreator
         $method = $classModel->createMethod($getter);
 
         $property = $this->propertizeGetter($getter);
-        
+
         $typeInfo = $this->reflector->getPropertyType($fullClass, $property);
         $value = $this->faker->generateValueFromType($typeInfo['type'], $typeInfo['full_class']);
 
@@ -215,8 +214,8 @@ class CodeModelCreator
                 $memberNameValue,
                 new CodeModel\Value\ExpressionValue(
                     new CodeModel\Expression\FuncCall(
-                        $memberNameValue, 
-                        $setter, 
+                        $memberNameValue,
+                        $setter,
                         [$highValueParam]
                     )
                 ),
@@ -325,7 +324,7 @@ class CodeModelCreator
      *
      * @return string
      *
-     * @throws InvalidArgumentException If the method does not seem to be a getter.
+     * @throws \InvalidArgumentException If the method does not seem to be a getter.
      */
     protected function propertizeGetter($getter)
     {
@@ -339,7 +338,7 @@ class CodeModelCreator
             return lcfirst(substr($getter, 3));
         }
 
-        throw new InvalidArgumentException(
+        throw new \InvalidArgumentException(
             sprintf('Bad getter "%s". A getter should start with "get", "is" or "has".', $getter)
         );
     }

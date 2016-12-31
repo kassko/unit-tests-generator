@@ -20,7 +20,6 @@ final class Method implements \Kassko\Test\UnitTestsGenerator\PlanAnnotation\Exp
     public $func;
     /**
      * @var bool
-     * @required
      */
     public $member;
 }

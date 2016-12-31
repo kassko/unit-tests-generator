@@ -19,7 +19,7 @@ trait InitStatementAwareTrait
      * @param Statement     $initStatement
      * @param boolean       $shouldNotExist (default)
      *
-     * @return self
+     * @return $this
      */
     public function addInitStatement($id, Statement $initStatement, $shouldNotExist = true)
     {

@@ -31,8 +31,8 @@ class Method
     /**
      * @param Expectation $expectation
      *
-     * @return self
-     */ 
+     * @return $this
+     */
     public function addExpectation(Expectation $expectation)
     {
         $this->expectations[] = $expectation;

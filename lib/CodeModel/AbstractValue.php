@@ -23,7 +23,7 @@ abstract class AbstractValue implements Value
     /**
      * @param mixed $value
      *
-     * @return self
+     * @return $this
      */
     public function setValue()
     {

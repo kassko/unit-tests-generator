@@ -1,6 +1,6 @@
 <?php
 
-namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation;
+namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation\SpyKind;
 
 /**
 * @Annotation
@@ -8,7 +8,7 @@ namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation;
 *
 * @author kko
 */
-final class Exception_
+final class Exception_ implements \Kassko\Test\UnitTestsGenerator\PlanAnnotation\SpyKind
 {
     /**
      * @var string
@@ -19,7 +19,7 @@ final class Exception_
      */
     public $code;
     /**
-     * string
+     * @var string
      */
-    public $msg;
+    public $message;
 }

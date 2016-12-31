@@ -2,14 +2,10 @@
 
 namespace Kassko\Test\UnitTestsGenerator\PlanModel;
 
-use Kassko\Test\UnitTestsGenerator\PlanModel\AbstractExpectation;
-use Kassko\Test\UnitTestsGenerator\PlanModel\Path;
-use Kassko\Test\UnitTestsGenerator\PlanModel\Value;
-
 /**
- * ResultExpectation
+ * Expectation
  */
-class ResultExpectation extends AbstractExpectation
+class Expectation
 {
     /**
      * @var Value
@@ -19,6 +15,10 @@ class ResultExpectation extends AbstractExpectation
      * @var Path
      */
     private $path;
+    /**
+     * @var bool
+     */
+    private $enabled;
 
     /**
      * @param Value $result
@@ -27,10 +27,9 @@ class ResultExpectation extends AbstractExpectation
      */
     public function __construct(Value $result, Path $path, $enabled = true)
     {
-        parent::__construct($enabled);
-
-        $this->expectation = $result;
+        $this->result = $result;
         $this->path = $path;
+        $this->enabled = $enabled;
     }
 
     /**
@@ -38,7 +37,7 @@ class ResultExpectation extends AbstractExpectation
      */
     public function getResult()
     {
-        return $this->expectation;
+        return $this->result;
     }
 
     /**
@@ -47,5 +46,13 @@ class ResultExpectation extends AbstractExpectation
     public function getPath()
     {
         return $this->path;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEnable()
+    {
+        return $this->enabled;
     }
 }

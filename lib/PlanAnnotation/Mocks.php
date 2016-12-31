@@ -8,15 +8,15 @@ namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation;
 *
 * @author kko
 */
-final class Path
+final class Mocks
 {
     /**
-     * @var string
+     * @var array
      */
-    public $mocks;
+    public $items;
 
     public function __construct(array $data)
     {
-        $this->mocks = $data;
+        $this->items = $data;
     }
 }

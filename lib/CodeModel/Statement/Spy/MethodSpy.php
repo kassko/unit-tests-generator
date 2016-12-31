@@ -37,7 +37,7 @@ class MethodSpy implements Spy
     /**
      * @param string $methodName
      *
-     * @return self
+     * @return $this
      */
     public function setMethodName($methodName)
     {
@@ -57,7 +57,7 @@ class MethodSpy implements Spy
     /**
      * @param string $call
      *
-     * @return self
+     * @return $this
      */
     public function setCall($call)
     {
@@ -77,7 +77,7 @@ class MethodSpy implements Spy
     /**
      * @param string $return
      *
-     * @return self
+     * @return $this
      */
     public function setReturn($return)
     {

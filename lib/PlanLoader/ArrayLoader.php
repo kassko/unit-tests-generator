@@ -2,14 +2,13 @@
 
 namespace Kassko\Test\UnitTestsGenerator\PlanLoader;
 
-use Kassko\Test\UnitTestsGenerator\PlanLoader;
 use Kassko\Test\UnitTestsGenerator\PlanModel;
 use Kassko\Test\UnitTestsGenerator\PlanProviderResource;
 
 /**
  * ArrayLoader
  */
-class ArrayLoader implements PlanLoader
+class ArrayLoader implements \Kassko\Test\UnitTestsGenerator\PlanLoader
 {
     /**
      * {@inheritdoc}
@@ -24,8 +23,11 @@ class ArrayLoader implements PlanLoader
      */
     public function load(PlanModel\Class_ $classPlanModel, PlanProviderResource $providerResource)
     {
-        //array data
-        //$data = $providerResource->getResource();
+        $data = $providerResource->getResource();
+
+        //var_dump($data);
+
+        /** Here load plan model from data */
 
         return $classPlanModel;
     }

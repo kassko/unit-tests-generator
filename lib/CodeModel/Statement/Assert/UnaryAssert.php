@@ -34,7 +34,7 @@ class UnaryAssert extends AbstractAssert
     /**
      * @param Value $operand
      *
-     * @return self
+     * @return $this
      */
     public function setOperand(Value $operand)
     {

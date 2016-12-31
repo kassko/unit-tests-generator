@@ -7,7 +7,7 @@ use Kassko\Test\UnitTestsGenerator\CodeDumper;
 use Kassko\Test\UnitTestsGenerator\CodeModelCreator;
 use Kassko\Test\UnitTestsGenerator\FilesFinder;
 use Kassko\Test\UnitTestsGenerator\OutputDirectoryResolver;
-use Kassko\Test\UnitTestsGenerator\Util\PhpElementsExtractor;
+use Kassko\Test\UnitTestsGenerator\Util\PhpElementsParser;
 use Kassko\Test\UnitTestsGenerator\PlanLoader;
 
 /**
@@ -24,9 +24,9 @@ class GenerateTestsCommand
      */
     private $filesFinder;
     /**
-     * @var PhpElementsExtractor
+     * @var PhpElementsParser
      */
-    private $phpElementsExtractor;
+    private $phpElementsParser;
     /**
      * @var CodeModelCreator
      */
@@ -51,7 +51,7 @@ class GenerateTestsCommand
     /**
      * @param array                     $config
      * @param FilesFinder               $filesFinder
-     * @param PhpElementsExtractor      $phpElementsExtractor
+     * @param PhpElementsParser      $phpElementsParser
      * @param CodeModelCreator          $codeModelCreator
      * @param AbstractTestGenerator     $generator
      * @param CodeDumper                $codeDumper
@@ -61,7 +61,7 @@ class GenerateTestsCommand
     public function __construct(
         array $config,
         FilesFinder $filesFinder,
-        PhpElementsExtractor $phpElementsExtractor,
+        PhpElementsParser $phpElementsParser,
         CodeModelCreator $codeModelCreator,
         AbstractTestGenerator $generator,
         CodeDumper $codeDumper,
@@ -70,7 +70,7 @@ class GenerateTestsCommand
     ) {
         $this->config = $config;
         $this->filesFinder = $filesFinder;
-        $this->phpElementsExtractor = $phpElementsExtractor;
+        $this->phpElementsParser = $phpElementsParser;
         $this->codeModelCreator = $codeModelCreator;
         $this->generator = $generator;
         $this->codeDumper = $codeDumper;
@@ -81,10 +81,12 @@ class GenerateTestsCommand
     public function process()
     {
         foreach ($this->filesFinder->findFiles() as $filePath) {
+            //if (stripos($filePath, 'manager') === false) {continue;}
             require_once $filePath;
 
-            $this->phpElementsExtractor->parseFile($filePath);
-            foreach ($this->phpElementsExtractor->getFullClasses() as $fullClass) {
+            $this->phpElementsParser->parseFile($filePath);
+
+            foreach ($this->phpElementsParser->getFullClasses($filePath) as $fullClass) {
                 $classCodeModel = new CodeModel\Class_($fullClass);
 
                 $this->codeModelCreator->loadCodeModel($classCodeModel);

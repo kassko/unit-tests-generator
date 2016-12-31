@@ -4,19 +4,19 @@ namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation;
 
 /**
 * @Annotation
-* @Target({"PROPERTY"})
+* @Target({"ANNOTATION"})
 *
 * @author kko
 */
-final class Type
+final class Spies
 {
     /**
-     * @var string
+     * @var array
      */
-    public $val;
+    public $items;
 
     public function __construct(array $data)
     {
-        $this->value = current($data);
+        $this->items = $data;
     }
 }

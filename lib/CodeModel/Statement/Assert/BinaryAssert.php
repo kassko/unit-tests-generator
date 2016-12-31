@@ -40,7 +40,7 @@ class BinaryAssert extends AbstractAssert
     /**
      * @param Value $leftOperand
      *
-     * @return self
+     * @return $this
      */
     public function setLeftOperand(Value $leftOperand)
     {
@@ -60,7 +60,7 @@ class BinaryAssert extends AbstractAssert
     /**
      * @param Value $rightOperand
      *
-     * @return self
+     * @return $this
      */
     public function setRightOperand(Value $rightOperand)
     {

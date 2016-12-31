@@ -31,8 +31,8 @@ class Class_
     /**
      * @param Method $method
      *
-     * @return self
-     */ 
+     * @return $this
+     */
     public function addMethod(Method $method)
     {
         $this->methods[] = $method;

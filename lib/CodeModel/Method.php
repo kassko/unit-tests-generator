@@ -65,7 +65,7 @@ class Method
     /**
      * @param Spy
      *
-     * @return self
+     * @return $this
      */
     public function addSpy(Spy $spy)
     {
@@ -85,7 +85,7 @@ class Method
     /**
      * @param CustomStmt $customStmt
      *
-     * @return self
+     * @return $this
      */
     public function addCustomStmt(CustomStmt $customStmt)
     {
@@ -105,7 +105,7 @@ class Method
     /**
      * @param Assert_ $assert
      *
-     * @return self
+     * @return $this
      */
     public function addAssert(Assert_ $assert)
     {

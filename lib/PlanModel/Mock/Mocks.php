@@ -11,7 +11,7 @@ class Mocks extends AbstractMock
 {
     /**
      * @var Mock[]
-     */ 
+     */
     private $cases;
 
     /**
@@ -24,13 +24,13 @@ class Mocks extends AbstractMock
         parent::__construct($id, $enabled);
 
         $this->cases = $cases;
-    }   
-    
+    }
+
     /**
      * @param Mock $case
      *
-     * @return self
-     */ 
+     * @return $this
+     */
     public function addCase(Case $case)
     {
         $this->cases[$case->getId()] = $case;

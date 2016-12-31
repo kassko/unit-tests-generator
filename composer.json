@@ -1,12 +1,13 @@
 {
-    "name": "kassko/test-unit-tests-gen",
+    "name": "kassko/test-unit-tests-generator",
     "description": "A unit tests generator",
     "license": "MIT",
-    "keywords": ["test", "phpunit", "stub", "spy", "mock"],
+    "keywords": ["test", "generator", "phpunit", "mock", "stub", "spy"],
     "require": {
         "php": ">=5.5",
         "nikic/php-parser": "^3.0.2",
         "kassko/util-member-accessor": "dev-master",
+        "symfony/config": "^3.1",
         "symfony/filesystem": "^3.1",
         "symfony/finder": "^3.1"
     },

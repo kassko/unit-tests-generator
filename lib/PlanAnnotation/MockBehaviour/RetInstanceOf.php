@@ -13,10 +13,10 @@ final class RetInstanceOf implements \Kassko\Test\UnitTestsGenerator\PlanAnnotat
     /**
      * @var string
      */
-    public $fullClass;
+    public $class;
 
     public function __construct(array $data)
     {
-        $this->fullClass = current($data);
+        $this->class = current($data);
     }
 }

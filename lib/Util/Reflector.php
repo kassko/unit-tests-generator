@@ -2,7 +2,7 @@
 
 namespace Kassko\Test\UnitTestsGenerator\Util;
 
-use Kassko\Test\UnitTestsGenerator\Util\ClassNameParser;
+use Kassko\Test\UnitTestsGenerator\Util\PhpElementsParser;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -21,16 +21,16 @@ class Reflector
      */
     private $reflectionClasses = [];
     /**
-     * @var ClassNameParser
+     * @var PhpElementsParser
      */
-    protected $classNameParser;
+    protected $phpElementsParser;
 
     /**
-     * @param ClassNameParser $classNameParser
+     * @param PhpElementsParser $phpElementsParser
      */
-    public function __construct(ClassNameParser $classNameParser)
+    public function __construct(PhpElementsParser $phpElementsParser)
     {
-        $this->classNameParser = $classNameParser;
+        $this->phpElementsParser = $phpElementsParser;
     }
 
     /**
@@ -190,7 +190,7 @@ class Reflector
 
             if (preg_match($pattern, $reflProperty->getDocComment(), $matches)) {
                 $namespace = $this->getReflectionClass($fullClass)->getNamespaceName();
-                list($type, $paramFullClass) = $this->resolveType($matches[1], $namespace, $fullClass);
+                list($type, $paramFullClass) = $this->resolveType($matches[1], $fullClass);
                 $properties['struct'][$property][$tag] = ['type' => $type, 'full_class' => $paramFullClass];
             }
         }
@@ -234,20 +234,19 @@ class Reflector
 
     /**
      * @param string $type
-     * @param string $parentNamespace
      * @param string $parentFullClass
      *
-     * @return string
+     * @return array
      */
-    protected function resolveType($type, $parentNamespace, $parentFullClass)
+    protected function resolveType($type, $parentFullClass)
     {
-        if ('self' === $type || '$this' === $type) {
+        if ('$this' === $type || 'self' === $type) {
             $type = 'object';
             $fullClass = $parentFullClass;
         } elseif (in_array($type, ['boolean', 'float', 'integer', 'string', 'array'])) {
             $fullClass = null;
         } else {
-            $fullClass = empty($parentNamespace) ? $type : $this->classNameParser->join($parentNamespace, $type);
+            $fullClass = $this->phpElementsParser->resolveFullClass($parentFullClass, $type);
             $type = 'object';
         }
 
@@ -277,7 +276,7 @@ class Reflector
                 if (count($matches) > 1) {
                     if ('return_type' === $tag) {
                         $namespace = $this->getReflectionClass($fullClass)->getNamespaceName();
-                        list($type, $paramFullClass) = $this->resolveType($matches[1], $namespace, $fullClass);
+                        list($type, $paramFullClass) = $this->resolveType($matches[1], $fullClass);
                         $methods['struct'][$method][$tag] = ['type' => $type, 'full_class' => $paramFullClass];
                     }
                 }
@@ -311,7 +310,7 @@ class Reflector
                     if ('params' === $tag) {
                         $namespace = $this->getReflectionClass($fullClass)->getNamespaceName();
                         foreach ($matches[1] as $index => $match) {
-                            list($type, $paramFullClass) = $this->resolveType($match, $namespace, $fullClass);
+                            list($type, $paramFullClass) = $this->resolveType($match, $fullClass);
                             $methods['struct'][$method][$tag][$index] = ['type' => $type, 'full_class' => $paramFullClass];
                         }
 

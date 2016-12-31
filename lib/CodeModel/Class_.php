@@ -52,7 +52,7 @@ class Class_
     /**
      * @param array $namespaces
      *
-     * @return self
+     * @return $this
      */
     public function useNamespaces(array $namespaces)
     {
@@ -64,7 +64,7 @@ class Class_
     /**
      * @param string $namespace
      *
-     * @return self
+     * @return $this
      */
     public function useNamespace($namespace)
     {
@@ -92,7 +92,7 @@ class Class_
     /**
      * @param string $methodName
      *
-     * @return self
+     * @return $this
      */
     public function createMethod($methodName)
     {
@@ -102,7 +102,7 @@ class Class_
     /**
      * @param Method $method
      *
-     * @return self
+     * @return $this
      */
     public function addMethod(Method $method)
     {

@@ -8,10 +8,12 @@ namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation;
 *
 * @author kko
 */
-final class Expectations
+final class SpiesStore
 {
     /**
-     * @var array<\Kassko\Test\UnitTestsGenerator\PlanAnnotation\Expectation>
+     * One or more Mock annotations.
+     *
+     * @var mixed \Kassko\Test\UnitTestsGenerator\PlanAnnotation\Spy[]
      */
     public $items = [];
 }
