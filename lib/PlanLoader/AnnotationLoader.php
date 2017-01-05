@@ -147,7 +147,7 @@ class AnnotationLoader extends \Kassko\Test\UnitTestsGenerator\AbstractPlanLoade
     protected function extractExpectation(Ut\Expectation $expectation)
     {
         return [
-            'return' => $this->extractExpected($expectation->return),
+            'return' => $this->extractReturn($expectation->return),
             'mocks' => $this->extractMocks($expectation->mocks),
             'spies' => $this->extractSpies($expectation->spies),
             'enabled' => $expectation->enabled
@@ -155,20 +155,28 @@ class AnnotationLoader extends \Kassko\Test\UnitTestsGenerator\AbstractPlanLoade
     }
 
     /**
-     * @param mixed $expected
+     * @param mixed $return
      *
      * @return array
      */
-    protected function extractExpected($expected)
+    protected function extractReturn($return)
     {
         switch (true) {
-            case is_scalar($expected):
-                return ['type' => 'scalar', 'config' => $expected];
-            case $expected instanceof Ut\Exception:
-                return ['type' => 'exception', 'config' => $this->extractException($expected)];
+            case is_scalar($return):
+                return ['type' => 'scalar', 'config' => ['scalar' => ['value' => $return]]];
         }
 
         return [];
+    }
+
+    /**
+     * @param mixed $return
+     *
+     * @return array
+     */
+    protected function extractScalarReturn($return)
+    {
+        return ['value' => $return];
     }
 
     /**
@@ -178,7 +186,7 @@ class AnnotationLoader extends \Kassko\Test\UnitTestsGenerator\AbstractPlanLoade
      */
     protected function extractMocks(Ut\Mocks $mocks = null)
     {
-        return ['items' => $mocks ? $mocks->items : null];
+        return $mocks ? $mocks->items['value'] : null;
     }
 
     /**
@@ -188,7 +196,7 @@ class AnnotationLoader extends \Kassko\Test\UnitTestsGenerator\AbstractPlanLoade
      */
     protected function extractSpies(Ut\Spies $spies = null)
     {
-        return ['items' => $spies ? $spies->items : null];
+        return $spies ? $spies->items['value'] : null;
     }
 
     /**
@@ -217,7 +225,7 @@ class AnnotationLoader extends \Kassko\Test\UnitTestsGenerator\AbstractPlanLoade
         return [
             'id' => $mock->id,
             'expr' => $this->extractExpression($mock->expr),
-            'mock_behaviour' => $this->extractMockBehaviour($mock->behav),
+            'behaviour' => $this->extractMockBehaviour($mock->behav),
             'enabled' => $mock->enabled
         ];
     }
@@ -231,19 +239,29 @@ class AnnotationLoader extends \Kassko\Test\UnitTestsGenerator\AbstractPlanLoade
     {
         switch (true) {
             case $expr instanceof Ut\Expression\Method:
-                return ['type' => 'method', 'config' => ['obj' => $expr->obj, 'func' => $expr->func, 'member' => $expr->member]];
+                return ['type' => 'method', 'config' => ['method' => $this->extractMethodCall($expr)]];
             case $expr instanceof Ut\Expression\OppositeMockOf:
-                return ['type' => 'opposite_mock_of', 'config' => ['id' => $expr->id]];
+                return ['type' => 'opposite_mock_of', 'config' => ['opposite_mock_of' => ['id' => $expr->id]]];
             case $expr instanceof Ut\Expression\Mocks:
-                return ['type' => 'mocks', 'config' => ['items' => $expr->items]];
+                return ['type' => 'mocks', 'config' => ['mocks' => ['items' => $expr->items]]];
         }
 
         return [];
     }
 
     /**
-     * @param Ut\MockBehaviour  $behaviour
-     * @param mixed             $returnValue
+     * @param Ut\Expression\Method $method
+     *
+     * @return array
+     */
+    protected function extractMethodCall(Ut\Expression\Method $method)
+    {
+        return ['obj' => $method->obj, 'member' => $method->member, 'func' => $method->func];
+    }
+
+    /**
+     * @param Ut\MockBehaviour  $behaviour  (default|null)
+     * @param mixed             $returnValue (default|null)
      *
      * @return array
      */
@@ -253,11 +271,11 @@ class AnnotationLoader extends \Kassko\Test\UnitTestsGenerator\AbstractPlanLoade
             case $behaviour instanceof Ut\MockBehaviour\Noop:
                 return ['type' => 'noop'];
             case $behaviour instanceof Ut\MockBehaviour\RetInstanceOf:
-                return ['type' => 'ret_instance_of', 'config' => ['class' => $behaviour->class]];
+                return ['type' => 'return_instance_of', 'config' => ['return_instance_of' => ['class' => $behaviour->class]]];
             case $behaviour instanceof Ut\MockBehaviour\RetVal:
-                return ['type' => 'ret_val', 'config' => ['val' => $behaviour->val]];
+                return ['type' => 'return', 'config' => ['return' => ['value' => $behaviour->val]]];
             case isset($returnValue):
-                return ['type' => 'ret_val', 'config' => ['val' => $returnValue]];
+                return ['type' => 'return', 'config' => ['return' => ['value' => $returnValue]]];
         }
 
         return [];
@@ -302,9 +320,9 @@ class AnnotationLoader extends \Kassko\Test\UnitTestsGenerator\AbstractPlanLoade
     {
         switch (true) {
             case $spyKind instanceof Ut\SpyKind\Calls:
-                return ['type' => 'calls', 'config' => $this->extractCalls($spyKind)];
+                return ['type' => 'calls', 'config' => ['calls' => $this->extractCalls($spyKind)]];
             case $spyKind instanceof Ut\SpyKind\Exception_:
-                return ['type' => 'exception', 'config' => $this->extractException($spyKind)];
+                return ['type' => 'exception', 'config' => ['exception' => $this->extractException($spyKind)]];
         }
     }
 
@@ -315,7 +333,7 @@ class AnnotationLoader extends \Kassko\Test\UnitTestsGenerator\AbstractPlanLoade
      */
     protected function extractCalls(Ut\SpyKind\Calls $calls)
     {
-        return ['nr' => $calls->nr, 'method' => $this->extractExpression($calls->method)];
+        return ['nr' => $calls->nr, 'method' => $this->extractMethodCall($calls->method)];
     }
 
     /**

@@ -25,8 +25,6 @@ class ArrayLoader implements \Kassko\Test\UnitTestsGenerator\PlanLoader
     {
         $data = $providerResource->getResource();
 
-        //var_dump($data);
-
         /** Here load plan model from data */
 
         return $classPlanModel;

@@ -7,7 +7,7 @@ use Kassko\Test\UnitTestsGenerator\PlanAnnotation\MockBehaviour as UtBe;
 use Kassko\Test\UnitTestsGenerator\PlanAnnotation\Expression as UtExpr;
 use Kassko\Test\UnitTestsGenerator\PlanAnnotation\SpyKind as UtSpyKind;
 
-class Manager
+class Service
 {
     /**
      * @var \RichService

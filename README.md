@@ -229,7 +229,7 @@ use Kassko\Test\UnitTestsGenerator\Annotation as Ut;
 use Kassko\Test\UnitTestsGenerator\Annotation\Expression as UtExpr;
 use Kassko\Test\UnitTestsGenerator\Annotation\MockBehaviour as UtBehav;
 
-class Manager
+class Service
 {
     /**
      * @var \RichService
@@ -257,6 +257,11 @@ class Manager
      *  @Ut\Mock(id="man", expr=@UtExpr\Method(obj="genderService", func="getGender"), return="M"),
      *  @Ut\Mock(id="unknown_gender", expr=@UtExpr\Method(obj="genderService", func="getGender"), return="R")
      * })
+     *
+     * @Ut\SpiesStore({
+     *  @Ut\Spy(id="gender_once", expected=@UtSpyKind\Calls(nr=1, method=@UtExpr\Method(obj="genderService", member=false, func="getGender"))),
+     *  @Ut\Spy(id="unknown_exception", expected=@UtSpyKind\Exception_(class="MyException", code=1))
+     * })
      */
     public function isRichWoman(\GenderService $genderService)
     {
@@ -282,6 +287,11 @@ class Manager
      *  @Ut\Mock(id="woman", expr=@UtExpr\Method(obj="genderService", func="getGender"), behav=@UtBehav\RetInstanceOf("Female")),
      *  @Ut\Mock(id="man", expr=@UtExpr\Method(obj="genderService", func="getGender"), behav=@UtBehav\RetInstanceOf("Male")),
      *  @Ut\Mock(id="unknown_gender", expr=@UtExpr\Method(obj="genderService", func="getGender"), behav=@UtBehav\RetInstanceOf("UnknownType"))
+     * })
+     *
+     * @Ut\SpiesStore({
+     *  @Ut\Spy(id="gender_once", expected=@UtSpyKind\Calls(nr=1, method=@UtExpr\Method(obj="genderService", member=false, func="getGender"))),
+     *  @Ut\Spy(id="unknown_exception", expected=@UtSpyKind\Exception_(class="MyException", code=1))
      * })
      */
     public function isRichWomanBis($genderService)

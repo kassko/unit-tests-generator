@@ -30,10 +30,13 @@ abstract class AbstractPlanLoader implements PlanLoader
     public function load(PlanModel\Class_ $classPlanModel, PlanProviderResource $providerResource)
     {
         $data = $this->filterDataRecursively($this->getData($providerResource), [$this, 'isUsefullConfigEntry']);
-        /*if (stripos($providerResource->getResource(), 'address')) {
+        //$data = $this->getData($providerResource);
+
+        if (stripos($providerResource->getResource(), 'manager')) {
             var_dump($data);
-        }*/
-        //$data = $this->getValidatedData($data);
+        }
+
+        $data = $this->getValidatedData([$data]);
 
         return $this->arrayLoader->load($classPlanModel, new PlanProviderResource('array', $data));
     }

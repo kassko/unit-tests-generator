@@ -11,7 +11,7 @@ namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation\Expression;
 final class Mocks implements \Kassko\Test\UnitTestsGenerator\PlanAnnotation\Expression
 {
     /**
-     * @var string
+     * @var array
      */
     public $items;
 

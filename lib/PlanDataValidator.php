@@ -79,9 +79,9 @@ class PlanDataValidator implements ConfigurationInterface
             ->useAttributeAsKey('name')
             ->prototype('array')
                 ->children()
-                    ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
+                    ->scalarNode('name')->/*isRequired()->*/cannotBeEmpty()->end()
+                    ->append($this->addMethodConfigNode())
                 ->end()
-                ->append($this->addMethodConfigNode())
             ->end()
         ;
 
@@ -99,12 +99,13 @@ class PlanDataValidator implements ConfigurationInterface
                 ->arrayNode('expectations')
                     ->prototype('array')
                         ->children()
-                            ->scalarNode('return')->isRequired()->cannotBeEmpty()->end()
+                            ->append($this->addReturnNode('return'))
                             ->arrayNode('spies')
-                                ->requiresAtLeastOneElement()
                                 ->prototype('scalar')->end()
                             ->end()
-                            ->arrayNode('mocks')->requiresAtLeastOneElement()->prototype('scalar')->end()->end()
+                            ->arrayNode('mocks')
+                                ->prototype('scalar')->end()
+                            ->end()
                             ->scalarNode('enabled')->defaultTrue()->end()
                         ->end()
                     ->end()
@@ -122,7 +123,7 @@ class PlanDataValidator implements ConfigurationInterface
                     ->end()
                 ->end()
 
-                ->arrayNode('spie_store')
+                ->arrayNode('spies_store')
                     ->prototype('array')
                         ->children()
                             ->scalarNode('id')->isRequired()->cannotBeEmpty()->end()
@@ -138,20 +139,54 @@ class PlanDataValidator implements ConfigurationInterface
         return $rootNode;
     }
 
+    protected function addReturnNode($name)
+    {
+        $builder = new TreeBuilder();
+        $node = $builder->root($name);
+
+        $node
+            ->children()
+                ->enumNode('type')
+                    ->values(['scalar'])//Only one for instance but several later.
+                    ->defaultValue('scalar')
+                ->end()
+                ->arrayNode('config')
+                    ->append($this->addScalarReturnNode())
+                ->end()
+            ->end()
+        ;
+
+        return $node;
+    }
+
+    protected function addScalarReturnNode()
+    {
+        $builder = new TreeBuilder();
+        $node = $builder->root('scalar');
+
+        $node
+            ->canBeEnabled()
+            ->children()
+                ->scalarNode('value')->isRequired()->cannotBeEmpty()->end()
+            ->end()
+        ;
+
+        return $node;
+    }
+
     protected function addExpressionNode()
     {
         $builder = new TreeBuilder();
         $node = $builder->root('expr');
 
         $node
+            ->canBeEnabled()
             ->children()
                 ->enumNode('type')
-                    ->values(['method, opposite_of_mock, mocks'])
+                    ->values(['method', 'opposite_mock_of', 'mocks'])
                     ->isRequired()
                 ->end()
                 ->arrayNode('config')
-                    ->children()
-                    ->end()
                     ->append($this->addMethodExprNode())
                     ->append($this->addOppositeOfMockExprNode())
                     ->append($this->addMocksExprNode())
@@ -164,30 +199,18 @@ class PlanDataValidator implements ConfigurationInterface
 
     protected function addMethodExprNode()
     {
-        $builder = new TreeBuilder();
-        $node = $builder->root('method');
-
-        $node
-            ->canBeEnabled()
-            ->children()
-                ->scalarNode('obj')->isRequired()->cannotBeEmpty()->end()
-                ->booleanNode('member')->defaultTrue()->end()
-                ->scalarNode('func')->isRequired()->cannotBeEmpty()->end()
-            ->end()
-        ;
-
-        return $node;
+        return $this->addMethodNode();
     }
 
     protected function addOppositeOfMockExprNode()
     {
         $builder = new TreeBuilder();
-        $node = $builder->root('opposite_of_mock');
+        $node = $builder->root('opposite_mock_of');
 
         $node
             ->canBeEnabled()
             ->children()
-                ->scalarNode('value')->isRequired()->cannotBeEmpty()->end()
+                ->scalarNode('id')->isRequired()->cannotBeEmpty()->end()
             ->end()
         ;
 
@@ -215,17 +238,16 @@ class PlanDataValidator implements ConfigurationInterface
     protected function addMockBehaviourNode()
     {
         $builder = new TreeBuilder();
-        $node = $builder->root('behav');
+        $node = $builder->root('behaviour');
 
         $node
+            ->canBeEnabled()
             ->children()
                 ->enumNode('type')
-                    ->values(['noop, return, return_instance_of'])
+                    ->values(['noop', 'return', 'return_instance_of'])
                     ->isRequired()
                 ->end()
                 ->arrayNode('config')
-                    ->children()
-                    ->end()
                     ->append($this->addNoopBehavNode())
                     ->append($this->addRetValBehavNode())
                     ->append($this->addRetInstanceOfBehavNode())
@@ -286,7 +308,7 @@ class PlanDataValidator implements ConfigurationInterface
         $node
             ->children()
                 ->enumNode('type')
-                    ->values(['calls, exception'])
+                    ->values(['calls', 'exception'])
                     ->isRequired()
                 ->end()
                 ->arrayNode('config')
@@ -309,7 +331,8 @@ class PlanDataValidator implements ConfigurationInterface
         $node
             ->canBeEnabled()
             ->children()
-                ->scalarNode('value')->isRequired()->cannotBeEmpty()->end()
+                ->scalarNode('nr')->isRequired()->cannotBeEmpty()->end()
+                ->append($this->addMethodNode())
             ->end()
         ;
 
@@ -327,6 +350,23 @@ class PlanDataValidator implements ConfigurationInterface
                 ->scalarNode('class')->isRequired()->cannotBeEmpty()->end()
                 ->integerNode('code')->end()
                 ->scalarNode('message')->cannotBeEmpty()->end()
+            ->end()
+        ;
+
+        return $node;
+    }
+
+    protected function addMethodNode()
+    {
+        $builder = new TreeBuilder();
+        $node = $builder->root('method');
+
+        $node
+            ->canBeEnabled()
+            ->children()
+                ->scalarNode('obj')->isRequired()->cannotBeEmpty()->end()
+                ->booleanNode('member')->defaultTrue()->end()
+                ->scalarNode('func')->isRequired()->cannotBeEmpty()->end()
             ->end()
         ;
 
