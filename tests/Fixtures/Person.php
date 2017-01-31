@@ -2,6 +2,8 @@
 
 namespace Kassko\Test\UnitTestsGeneratorTest\Fixtures;
 
+use Kassko\Test\UnitTestsGenerator\PlanAnnotation as Ut;
+
 class Person
 {
     /**
@@ -14,6 +16,8 @@ class Person
     private $age;
     /**
      * @var Address
+     *
+     * @Ut\Type(value="address")
      */
     private $address;
 

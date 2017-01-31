@@ -1,8 +1,6 @@
 <?php
 
-namespace Kassko\Test\UnitTestsGenerator\PlanModel;
-
-use Kassko\Test\UnitTestsGenerator\PlanModel\Expectation;
+namespace Kassko\Test\UnitTestsGenerator\PlanModel\Expression;
 
 /**
  * Method
@@ -10,49 +8,87 @@ use Kassko\Test\UnitTestsGenerator\PlanModel\Expectation;
 class Method
 {
     /**
-     * @var Expectation[]
+     * @var string
      */
-    private $expectations;
+    public $obj;
+    /**
+     * @var string
+     */
+    public $func;
     /**
      * @var bool
      */
-    private $enabled;
+    public $member;
 
     /**
-     * @param Expectation[] $expectations (default)
-     * @param bool          $enabled (default)
+     * @param string    $obj
+     * @param string    $func
+     * @param bool   $member
      */
-    public function __construct(array $expectations = [], $enabled = true)
+    public function __construct($obj, $func, $member)
     {
-        $this->expectations = $expectations;
-        $this->enabled = $enabled;
+        $this->obj = $obj;
+        $this->func = $func;
+        $this->member = $member;
     }
 
     /**
-     * @param Expectation $expectation
+     * @return string
+     */
+    public function getObj()
+    {
+        return $this->obj;
+    }
+
+    /**
+     * @param string $obj
      *
      * @return $this
      */
-    public function addExpectation(Expectation $expectation)
+    public function setObj($obj)
     {
-        $this->expectations[] = $expectation;
+        $this->obj = $obj;
 
         return $this;
     }
 
     /**
-     * @return Expectation[]
+     * @return string
      */
-    public function getExpectations()
+    public function getFunc()
     {
-        return $this->expectations;
+        return $this->func;
     }
 
     /**
-     * @return bool
+     * @param string $func
+     *
+     * @return $this
      */
-    public function isEnable()
+    public function setFunc($func)
     {
-        return $this->enabled;
+        $this->func = $func;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function isMember()
+    {
+        return $this->member;
+    }
+
+    /**
+     * @param bool|default $member
+     *
+     * @return $this
+     */
+    public function makeMember($member = true)
+    {
+        $this->member = $member;
+
+        return $this;
     }
 }

@@ -243,17 +243,17 @@ class Service
 
     /**
      * @Ut\Expectations({
-     *  @Ut\Expectation(expected=true, path=@Path({"rich", "woman"})),
-     *  @Ut\Expectation(expected=false, path=@Path({"rich", "man"})),
-     *  @Ut\Expectation(expected=false, path=@Path({"poor", "woman"})),
-     *  @Ut\Expectation(expected=false, path=@Path({"poor", "man"})),
-     *  @Ut\Expectation(expected=@Ut\Exception_(class='MyException', code=1), path=@Path({"unknown_gender"}))
+     *  @Ut\Expectation(return=true, spies=@Ut\Spies({"gender_once"}), mocks=@Ut\Mocks({"rich", "woman"})),
+     *  @Ut\Expectation(return=false, mocks=@Ut\Mocks({"rich", "man"})),
+     *  @Ut\Expectation(return=false, mocks=@Ut\Mocks({"poor", "woman"})),
+     *  @Ut\Expectation(return=false, mocks=@Ut\Mocks({"poor", "man"})),
+     *  @Ut\Expectation(spies=@Ut\Spies({"unknown_exception"}), mocks=@Ut\Mocks({"unknown_gender"}))
      * })
      *
      * @Ut\MocksStore({
-     *  @Ut\Mock(id="rich", expr=@UtExpr\Method(obj="richService", func="isRich"), behav=@UtBehav\RetVal(true)),
+     *  @Ut\Mock(id="rich", expr=@UtExpr\Method(obj="richService", func="isRich"), behav=@UtBe\RetVal(true)),
      *  @Ut\Mock(id="poor", expr=@UtExpr\OppositeMockOf("rich")),
-     *  @Ut\Mock(id="woman", expr=@UtExpr\Method(obj="genderService", func="getGender", member=false), return="F"),
+     *  @Ut\Mock(id="woman", expr=@UtExpr\Method(obj="genderService", member=false, func="getGender"), return="F"),
      *  @Ut\Mock(id="man", expr=@UtExpr\Method(obj="genderService", func="getGender"), return="M"),
      *  @Ut\Mock(id="unknown_gender", expr=@UtExpr\Method(obj="genderService", func="getGender"), return="R")
      * })
@@ -265,28 +265,29 @@ class Service
      */
     public function isRichWoman(\GenderService $genderService)
     {
-        if ('F' !== $genderService->getGender() && 'M' !== $genderService->getGender()) {
+        $gender = $genderService->getGender();
+        if ('F' !== $gender && 'M' !== $gender) {
             throw new \MyException('Unkown gender', 1);
         }
 
-        return true === $this->richService->isRich() && 'F' === $genderService->getGender();
+        return true === $this->richService->isRich() && 'F' === $gender;
     }
 
     /**
      * @Ut\Expectations({
-     *  @Ut\Expectation(expected=true, path=@Path({"rich", "woman"})),
-     *  @Ut\Expectation(expected=false, path=@Path({"rich", "man"})),
-     *  @Ut\Expectation(expected=false, path=@Path({"poor", "woman"})),
-     *  @Ut\Expectation(expected=false, path=@Path({"poor", "man"})),
-     *  @Ut\Expectation(expected=@Ut\Exception_(class='MyException', code=1), path=@Path({"unknown_gender"}))
+     *  @Ut\Expectation(return=true, spies=@Ut\Spies({"gender_once"}), mocks=@Ut\Mocks({"rich", "woman"})),
+     *  @Ut\Expectation(return=false, mocks=@Ut\Mocks({"rich", "man"})),
+     *  @Ut\Expectation(return=false, mocks=@Ut\Mocks({"poor", "woman"})),
+     *  @Ut\Expectation(return=false, mocks=@Ut\Mocks({"poor", "man"})),
+     *  @Ut\Expectation(spies=@Ut\Spies({"unknown_exception"}), mocks=@Ut\Mocks({"unknown_gender"}))
      * })
      *
      * @Ut\MocksStore({
-     *  @Ut\Mock(id="rich", expr=@UtExpr\Method(prop="richService", func="isRich"), return=true),
+     *  @Ut\Mock(id="rich", expr=@UtExpr\Method(obj="richService", func="isRich"), behav=@UtBe\RetVal(true)),
      *  @Ut\Mock(id="poor", expr=@UtExpr\OppositeMockOf("rich")),
-     *  @Ut\Mock(id="woman", expr=@UtExpr\Method(obj="genderService", func="getGender"), behav=@UtBehav\RetInstanceOf("Female")),
-     *  @Ut\Mock(id="man", expr=@UtExpr\Method(obj="genderService", func="getGender"), behav=@UtBehav\RetInstanceOf("Male")),
-     *  @Ut\Mock(id="unknown_gender", expr=@UtExpr\Method(obj="genderService", func="getGender"), behav=@UtBehav\RetInstanceOf("UnknownType"))
+     *  @Ut\Mock(id="woman", expr=@UtExpr\Method(obj="genderService", member=false, func="getGender"), return="F"),
+     *  @Ut\Mock(id="man", expr=@UtExpr\Method(obj="genderService", func="getGender"), return="M"),
+     *  @Ut\Mock(id="unknown_gender", expr=@UtExpr\Method(obj="genderService", func="getGender"), return="R")
      * })
      *
      * @Ut\SpiesStore({

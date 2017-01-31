@@ -1,6 +1,6 @@
 <?php
 
-namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation\MockBehaviour;
+namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation\Behaviour;
 
 /**
 * @Annotation
@@ -8,6 +8,6 @@ namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation\MockBehaviour;
 *
 * @author kko
 */
-final class Noop implements \Kassko\Test\UnitTestsGenerator\PlanAnnotation\MockBehaviour
+final class Noop implements \Kassko\Test\UnitTestsGenerator\PlanAnnotation\Behaviour
 {
 }

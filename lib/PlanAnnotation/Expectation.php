@@ -11,6 +11,10 @@ namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation;
 final class Expectation
 {
     /**
+     * @var string
+     */
+    public $id;
+    /**
      * @var mixed
      */
     public $return;
@@ -25,5 +29,5 @@ final class Expectation
     /**
      * @var bool
      */
-    public $enabled = true;
+    public $activated = true;
 }

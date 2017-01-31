@@ -29,5 +29,5 @@ final class Mock
     /**
      * @var bool
      */
-    public $enabled = true;
+    public $activated = true;
 }

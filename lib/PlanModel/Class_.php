@@ -2,6 +2,7 @@
 
 namespace Kassko\Test\UnitTestsGenerator\PlanModel;
 
+use Kassko\Test\UnitTestsGenerator\PlanModel\ActivableTrait;
 use Kassko\Test\UnitTestsGenerator\PlanModel\Method;
 
 /**
@@ -9,23 +10,91 @@ use Kassko\Test\UnitTestsGenerator\PlanModel\Method;
  */
 class Class_
 {
+    use ActivableTrait;
+
+    /**
+     * @var Property[]
+     */
+    private $properties;
     /**
      * @var Method[]
      */
     private $methods;
-    /**
-     * @var bool
-     */
-    private $enabled;
 
     /**
      * @param Method[]      $methods (default)
-     * @param bool          $enabled (default)
      */
-    public function __construct(array $methods = [], $enabled = true)
+    public function __construct(array $methods = [])
     {
         $this->methods = $methods;
-        $this->enabled = $enabled;
+    }
+
+    /**
+     * @param string $name
+     * @return Property
+     */
+    public function getProperty($name)
+    {
+        if (!isset($this->properties[$name])) {
+            throw new \DomainException(sprintf('The property "%s" do not exist.', $name));
+        }
+
+        return $this->properties[$name];
+    }
+
+    /**
+     * @return Property[]
+     */
+    public function getProperties()
+    {
+        return $this->properties;
+    }
+
+    /**
+     * @param string $name
+     * @param Property $property
+     *
+     * @return $this
+     */
+    public function addProperty($name, Property $prop)
+    {
+        $this->properties[$name] = $prop;
+
+        return $this;
+    }
+
+    /**
+     * @param Property[] $property
+     *
+     * @return $this
+     */
+    public function setProperties(array $properties)
+    {
+        $this->properties = $properties;
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return Property
+     */
+    public function getMethod($name)
+    {
+        if (!isset($this->methods[$name])) {
+            throw new \DomainException(sprintf('The method "%s" do not exist.', $name));
+        }
+
+        return $this->methods[$name];
+    }
+
+    /**
+     * @return Method[]
+     */
+    public function getMethods()
+    {
+        return $this->methods;
     }
 
     /**
@@ -41,18 +110,14 @@ class Class_
     }
 
     /**
-     * @return Method[]
+     * @param Method[] $method
+     *
+     * @return $this
      */
-    public function getMethods()
+    public function setMethods(array $methods)
     {
-        return $this->methods;
-    }
+        $this->methods = $methods;
 
-    /**
-     * @return bool
-     */
-    public function isEnable()
-    {
-        return $this->enabled;
+        return $this;
     }
 }

@@ -18,8 +18,16 @@ class Faker
     public function generateValueFromType($type, $semanticType = null)
     {
         if (null !== $semanticType) {
+            switch ($semanticType) {
+                case 'address':
+                    //Here, handle or delegate handling of Address Dummy creation.
+                    break;
+            }
+
             return $this->generateString();//For the moment.
-        } elseif ('object' !== $type) {
+        }
+
+        if ('object' !== $type) {
             switch ($type) {
                 case 'string':
                 case 'mixed':
@@ -51,7 +59,9 @@ class Faker
             }
 
             throw new \DomainException(sprintf('Invalid type "%s"', $type));
-        } elseif ('DateTime' === $type) {
+        }
+
+        if ('DateTime' === $type) {
             return new \DateTime;
         }
 

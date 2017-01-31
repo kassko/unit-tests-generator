@@ -19,7 +19,7 @@ abstract class AbstractPlanLoader implements PlanLoader
     /**
      * @param ArrayLoader   $arrayLoader
      */
-    public function __construct( ArrayLoader $arrayLoader)
+    public function __construct(ArrayLoader $arrayLoader)
     {
         $this->arrayLoader = $arrayLoader;
     }
@@ -29,12 +29,11 @@ abstract class AbstractPlanLoader implements PlanLoader
      */
     public function load(PlanModel\Class_ $classPlanModel, PlanProviderResource $providerResource)
     {
-        $data = $this->filterDataRecursively($this->getData($providerResource), [$this, 'isUsefullConfigEntry']);
-        //$data = $this->getData($providerResource);
+        $data = $this->normalizeData($this->getData($providerResource));
 
-        if (stripos($providerResource->getResource(), 'manager')) {
+        /*if (stripos($providerResource->getResource(), 'manager')) {
             var_dump($data);
-        }
+        }*/
 
         $data = $this->getValidatedData([$data]);
 
@@ -43,9 +42,20 @@ abstract class AbstractPlanLoader implements PlanLoader
 
     /**
      * @param PlanProviderResource $providerResource
+     *
      * @return array
      */
     abstract protected function getData(PlanProviderResource $providerResource);
+
+    /**
+     * @param array $data
+     *
+     * @return array
+     */
+    protected function normalizeData(array $data)
+    {
+        return $this->filterDataRecursively($data, [$this, 'isUsefullConfigEntry']);
+    }
 
     /**
      * @param $data

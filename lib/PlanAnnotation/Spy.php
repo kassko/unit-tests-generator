@@ -21,5 +21,5 @@ final class Spy
     /**
      * @var bool
      */
-    public $enabled = true;
+    public $activated = true;
 }

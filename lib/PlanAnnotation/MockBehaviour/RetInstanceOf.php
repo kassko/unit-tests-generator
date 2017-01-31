@@ -1,6 +1,6 @@
 <?php
 
-namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation\MockBehaviour;
+namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation\Behaviour;
 
 /**
  * @Annotation
@@ -8,7 +8,7 @@ namespace Kassko\Test\UnitTestsGenerator\PlanAnnotation\MockBehaviour;
  *
  * @author kko
  */
-final class RetInstanceOf implements \Kassko\Test\UnitTestsGenerator\PlanAnnotation\MockBehaviour
+final class RetInstanceOf implements \Kassko\Test\UnitTestsGenerator\PlanAnnotation\Behaviour
 {
     /**
      * @var string

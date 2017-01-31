@@ -38,7 +38,7 @@ class PlanDataValidator implements ConfigurationInterface
         $rootNode = $builder->root('properties');
 
         $rootNode
-            ->useAttributeAsKey('name')
+            //->useAttributeAsKey('name')
             ->prototype('array')
                 ->children()
                     ->scalarNode('name')->isRequired()->end()
@@ -57,14 +57,20 @@ class PlanDataValidator implements ConfigurationInterface
 
         $rootNode
             //->canBeEnabled()
-            ->prototype('array')
+            //->prototype('array')
                 ->children()
-                    ->enumNode('type')
-                        ->values([null, 'address'])
-                        ->defaultValue(null)
+                    ->arrayNode('type')
+                        ->children()
+                            ->enumNode('value')
+                                ->values([null, 'address'])
+                                ->defaultValue(null)
+                            ->end()
+                            ->booleanNode('activated')->defaultTrue()->end()
+                        ->end()
                     ->end()
+                    ->booleanNode('activated')->defaultTrue()->end()
                 ->end()
-            ->end()
+            //->end()
         ;
 
         return $rootNode;
@@ -99,6 +105,7 @@ class PlanDataValidator implements ConfigurationInterface
                 ->arrayNode('expectations')
                     ->prototype('array')
                         ->children()
+                            ->scalarNode('id')->isRequired()->cannotBeEmpty()->end()
                             ->append($this->addReturnNode('return'))
                             ->arrayNode('spies')
                                 ->prototype('scalar')->end()
@@ -106,7 +113,7 @@ class PlanDataValidator implements ConfigurationInterface
                             ->arrayNode('mocks')
                                 ->prototype('scalar')->end()
                             ->end()
-                            ->scalarNode('enabled')->defaultTrue()->end()
+                            ->scalarNode('activated')->defaultTrue()->end()
                         ->end()
                     ->end()
                 ->end()
@@ -116,7 +123,7 @@ class PlanDataValidator implements ConfigurationInterface
                         ->children()
                             ->scalarNode('id')->isRequired()->cannotBeEmpty()->end()
                             ->scalarNode('return')->cannotBeEmpty()->end()
-                            ->scalarNode('enabled')->defaultTrue()->end()
+                            ->scalarNode('activated')->defaultTrue()->end()
                         ->end()
                         ->append($this->addExpressionNode())
                         ->append($this->addMockBehaviourNode())
@@ -127,7 +134,7 @@ class PlanDataValidator implements ConfigurationInterface
                     ->prototype('array')
                         ->children()
                             ->scalarNode('id')->isRequired()->cannotBeEmpty()->end()
-                            ->scalarNode('enabled')->defaultTrue()->end()
+                            ->scalarNode('activated')->defaultTrue()->end()
                         ->end()
                         ->append($this->addSpyKindNode('expected'))
                         ->append($this->addMethodExprNode())
